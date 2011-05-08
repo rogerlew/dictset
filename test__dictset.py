@@ -289,6 +289,13 @@ class TestDictSet_copy(unittest.TestCase):
 
         self.assertEqual(d2l(L),R1)
 
+    def test01(self):
+        L = DictSet(s2d('a1 c5666788'))
+        R =         s2l('a1')
+        L.remove('c')
+        
+        self.assertEqual(d2l(L),R)
+
     def test1(self):
         L  = DictSet(s2d('a1 c5678'))
         M=L.copy()
@@ -302,7 +309,12 @@ class TestDictSet_discard(unittest.TestCase):
         L = DictSet(s2d('a1 c5666788'))
         R =         s2l('a1 c56  7')
         L.discard('c','8')
-        
+        self.assertEqual(d2l(L),R)
+
+    def test01(self):
+        L = DictSet(s2d('a1 c5666788'))
+        R =         s2l('a1')
+        L.discard('c')
         self.assertEqual(d2l(L),R)
 
     def test1(self):
@@ -319,12 +331,8 @@ class TestDictSet_discard(unittest.TestCase):
     def test3(self):
         L = DictSet(s2d('a1 c5666788'))
         R =         s2l('a1 c56  7')
-        
-        with self.assertRaises(TypeError) as cm:
-            L.discard([],'8')
+        L.discard([],'8') # dosen't raise TypeError
 
-        self.assertEqual(str(cm.exception),
-                "unhashable type: 'list'")
 
 class TestDictSet__setitem__(unittest.TestCase):
     def test0(self):

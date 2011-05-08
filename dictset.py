@@ -30,7 +30,7 @@
 #
 # This software is funded in part by NIH Grant P20 RR016454.
 #
-__version__="0.1"
+__version__="0.1.2"
 
 from copy import copy, deepcopy
 
@@ -902,7 +902,7 @@ class DictSet(dict):
         
         return self.symmetric_difference(d)
 
-    def add(self, k, v):
+    def add(self, k, v=None):
         """
         add(...)
             Add an element to a DictSet with key given by k.
@@ -929,17 +929,22 @@ class DictSet(dict):
             >>> A.add(3,'hello')
             >>> A[3]
             set(['hello'])
+
+          Add an empty set:
+            >>> A=DictSet({1:'abcd',2:'efg'})
+            >>> A.add(3)
+            >>> A
+            {1: set(['a', 'c', 'b', 'd']), 2: set(['e', 'g', 'f']), 3: set([])}
         """
         try    : k.__hash__()
         except : raise TypeError("unhashable type: '%s'"%type(k).__name__)
 
-        
         if k not in self:
             self[k]=set()
-
-        # it is much faster to call the sets add method directly
-        # then to go through self.update
-        self[k].add(v)
+            
+        if v!=None:
+            try : self[k].add(v)
+            except : raise
 
     def __setitem__(self,k,val):
         """
@@ -1088,7 +1093,7 @@ class DictSet(dict):
         """
         return copy(self)
     
-    def remove(self, k, v):
+    def remove(self, k, v=None):
         """
         remove(...)
             Remove an element from a DictSet with key given by k;
@@ -1101,11 +1106,18 @@ class DictSet(dict):
 
             see also: DictSet.discard
             
-          Examples:
+          Removing an element:
             >>> L=DictSet({'a':[1,2,3],'b':[2,3]})
             >>> L.remove('a',3)
             >>> L
             {'a': set([1, 2]), 'b': set([2, 3])}
+
+          Removing a set:
+            >>> L=DictSet({'a':[1,2,3],'b':[2,3]})
+            >>> L.remove('a')
+            >>> L
+            {'b': set([2, 3])}
+            
         """
         try    : k.__hash__()
         except : raise TypeError("unhashable type: '%s'"%type(k).__name__)
@@ -1113,10 +1125,13 @@ class DictSet(dict):
         if k not in self:
             raise KeyError(k)
         
-        try    : self[k].remove(v)
-        except : raise
+        if v!=None:
+            try    : self[k].remove(v)
+            except : raise
+        else:
+            del self[k]
             
-    def discard(self, k, v):
+    def discard(self, k, v=None):
         """
         discard(...)
             Remove an element from a DictSet if it is a member.
@@ -1126,19 +1141,32 @@ class DictSet(dict):
 
             see also: DictSet.remove
 
-          Examples:
+          Discarding an element:
             >>> L=DictSet({'a':[1,2,3],'b':[2,3]})
             >>> L.discard('a',3)
             >>> L
             {'a': set([1, 2]), 'b': set([2, 3])}
             >>> L.discard('c',4)
             >>> L.discard('a',4)
-        """
-        try    : k.__hash__()
-        except : raise TypeError("unhashable type: '%s'"%type(k).__name__)
 
-        if k in self:
-            self[k].discard(v)
+          Discarding a set:
+            >>> L=DictSet({'a':[1,2,3],'b':[2,3]})
+            >>> L.discard('a')
+            >>> L
+            {'b': set([2, 3])}
+
+          Discard quietly pass all errors:
+            >>> L=DictSet({'a':[1,2,3],'b':[2,3]})
+            >>> L.discard([])
+        """
+
+        if v!=None:
+            try    : self[k].discard(v)
+            except : pass
+        else:
+            try    : del self[k]
+            except : pass 
+            
 
 if __name__ == "__main__":
     import doctest
