@@ -30,7 +30,6 @@
 #
 # This software is funded in part by NIH Grant P20 RR016454.
 #
-__version__="0.1.2"
 
 from copy import copy, deepcopy
 
@@ -129,7 +128,7 @@ class DictSet(dict):
 
                 # obj is dict or dict subclass
                 if hasattr(obj, 'keys'):
-                    for k,val in obj.items():
+                    for k,val in list(obj.items()):
                         try    : k.__hash__()
                         except : raise \
                     TypeError("unhashable type: '%s'"%type(k).__name__)
@@ -160,7 +159,7 @@ class DictSet(dict):
                 raise TypeError("'%s' object is not iterable"%type(obj).__name__)
                     
         # check the keyword arguments
-        for (k,val) in kwds.items():
+        for (k,val) in list(kwds.items()):
             # unhashable keyword argumnents don't make it to the point 
             # so we just need to check that the values are iterable
             try    : val.__iter__()
@@ -180,8 +179,8 @@ class DictSet(dict):
 
                 # obj is dict or dict subclass
                 if hasattr(obj, 'keys'):
-                    for k,val in obj.items():
-                        if not k in args[0].keys():
+                    for k,val in list(obj.items()):
+                        if not k in list(args[0].keys()):
                             args[0][k]=set(val)
                         args[0][k]|=set(val)
 
@@ -190,13 +189,13 @@ class DictSet(dict):
                 else:
                     for item in obj:
                         (k,val)=item
-                        if not k in args[0].keys():
+                        if not k in list(args[0].keys()):
                             args[0][k]=set(val)
                         args[0][k]|=set(val)
 
         # Now add keyword arguments
-        for (k,val) in kwds.items():
-            if not k in args[0].keys():
+        for (k,val) in list(kwds.items()):
+            if not k in list(args[0].keys()):
                 args[0][k]=set(val)
             args[0][k]|=set(val)
 
@@ -262,8 +261,8 @@ class DictSet(dict):
         # check to see if self and d have the same keys
         # if they don't we know they aren't equal and
         # can return False
-        if len(set((k for (k,v) in self.items() if len(v)!=0))  ^ \
-               set((k for (k,v) in d.items()    if len(v)!=0))) > 0:
+        if len(set((k for (k,v) in list(self.items()) if len(v)!=0))  ^ \
+               set((k for (k,v) in list(d.items())    if len(v)!=0))) > 0:
             return False
 
         # at this point we know they have the same keys
@@ -300,8 +299,8 @@ class DictSet(dict):
         # check to see if self and d have the same keys
         # if they don't we know they aren't equal and
         # can return False
-        if len(set((k for (k,v) in self.items() if len(v)!=0))  ^ \
-               set((k for (k,v) in d.items()    if len(v)!=0))) > 0:
+        if len(set((k for (k,v) in list(self.items()) if len(v)!=0))  ^ \
+               set((k for (k,v) in list(d.items())    if len(v)!=0))) > 0:
             return True
 
         # at this point we know they have the same keys
@@ -995,7 +994,7 @@ class DictSet(dict):
         try    : k.__hash__()
         except : raise TypeError("unhashable type: '%s'"%type(k).__name__)
 
-        return k in [key for (key,val) in self.items() if len(val)>0]
+        return k in [key for (key,val) in list(self.items()) if len(val)>0]
 
     def get(self, k, val=None):
         """

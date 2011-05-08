@@ -38,7 +38,6 @@ import unittest
 import doctest
 import random
 
-from test import test_support
 from random import shuffle
 from string import digits,ascii_lowercase
 
@@ -86,7 +85,7 @@ def s2d(x=None):
     for v in vals:
         shuffle(v) # shuffles in place
             
-    return dict(zip(keys,vals))
+    return dict(list(zip(keys,vals)))
 
 def d2l(ds):
     """
