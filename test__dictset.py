@@ -1,4 +1,4 @@
-# Copyright (c) 20[0,1,2][0,1,2], Roger Lew
+# Copyright (c) 2011, Roger Lew
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
