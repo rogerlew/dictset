@@ -30,7 +30,7 @@
 #
 # This software is funded in part by NIH Grant P20 RR016454.
 #
-__version__="0.99"
+__version__="0.1"
 
 from copy import copy, deepcopy
 
