@@ -31,49 +31,76 @@
 # This software is funded in part by NIH Grant P20 RR016454.
 #
 
-from copy import copy, deepcopy
+# Python 2 to 3 workarounds
 
+import sys
+if sys.version_info[0]==2:
+    pass
+elif sys.version_info[0]==3:
+    from functools import reduce
+    
+from copy import copy, deepcopy
+from collections import _recursive_repr
+
+# for unique_combinations method
+rep_generator=lambda A,times,each:(a for t in range(times)
+                                        for a in A
+                                           for e in range(each))
+
+rep_generator.__doc__="""like r's rep function, but returns a generator
+
+  Examples:
+    >>> g=rep_generator([1,2,3],times=1,each=3)
+    >>> [v for v in g]
+    [1, 1, 1, 2, 2, 2, 3, 3, 3]
+
+    >>> g=rep_generator([1,2,3],times=3,each=1)
+    >>> [v for v in g]
+    [1, 2, 3, 1, 2, 3, 1, 2, 3]
+    
+    >>> g=rep_generator([1,2,3],times=2,each=2)
+    >>> [v for v in g]
+    [1, 1, 2, 2, 3, 3, 1, 1, 2, 2, 3, 3]
+"""
+    
 class DictSet(dict):
     """
     DictSet() -> new empty dictionary of sets
     DictSet(mapping) -> new dictionary of sets initialized from a
         mapping object's (key, value) pairs
     DictSet(iterable) -> new dictionary of sets initialized as if via:
-        d = {}
+        d = DictSet()
         for k, v in iterable:
             d[k] = set(v)
     DictSet(**kwargs) -> new dictionary of sets initialized with the
         name=value pairs in the keyword argument list.
-        For example:  dict(one=[1], two=[2])
+        For example:  DictSet(one=[1], two=[2])
     
     A dict of sets that behaves like a set.
 
+    Initialization examples:
+        >>> DictSet()
+        {}
+        
+        >>> DictSet(one=[1],two=[2])
+        {'two': set([2]), 'one': set([1])}
+
+        >>> DictSet([('one',[1]),('two',[2])])
+        {'two': set([2]), 'one': set([1])}
+
+        >>> DictSet({'one':[1],'two':[2]})
+        {'two': set([2]), 'one': set([1])}
+
+        >>> DictSet({'one':[1],'two':[2]},three=[3],four=[4])
+        {'four': set([4]), 'three': set([3]), 'two': set([2]), 'one': set([1])}
     """
     def __init__(*args, **kwds): # args[0] -> 'self'
-        """
-        Initialize DictSet
 
-          Signature is the same as for regular dictionaries
-        
-            >>> DictSet()
-            {}
-            
-            >>> DictSet(one=[1],two=[2])
-            {'two': set([2]), 'one': set([1])}
-
-            >>> DictSet([('one',[1]),('two',[2])])
-            {'two': set([2]), 'one': set([1])}
-
-            >>> DictSet({'one':[1],'two':[2]})
-            {'two': set([2]), 'one': set([1])}
-
-            >>> DictSet({'one':[1],'two':[2]},three=[3],four=[4])
-            {'four': set([4]), 'three': set([3]), 'two': set([2]), 'one': set([1])}
-        """
         # passing self with *args ensures that we can use
         # self as keyword for initializing a DictSet
         # Example: DictSet(self='abc', other='efg')
-    
+
+        # call update or complain about having too many arguments
         if len(args)==1:
             args[0].update({}, **kwds)
             
@@ -81,7 +108,8 @@ class DictSet(dict):
             args[0].update(args[1], **kwds)
 
         elif len(args) > 2 : raise \
-            TypeError('DictSet expected at most 1 arguments, got %d'%(len(args)-1))
+            TypeError('DictSet expected at most 1 arguments, got %d'\
+                      %(len(args)-1))
         
     def update(*args, **kwds): # args[0] -> 'self'
         """
@@ -108,10 +136,10 @@ class DictSet(dict):
             {'c': set([2, 3, 4]), 'b': set([1, 2, 3])}
             
         """
-##        print 'update',args
         # check the length of args
         if len(args) > 2 : raise \
-            TypeError('DictSet expected at most 1 arguments, got %d'%(len(args)-1))
+            TypeError('DictSet expected at most 1 arguments, got %d'\
+                      %(len(args)-1))
 
         # Make sure args can be mapped to a DictSet before
         # we start adding them.
@@ -131,12 +159,14 @@ class DictSet(dict):
                     for k,val in list(obj.items()):
                         try    : k.__hash__()
                         except : raise \
-                    TypeError("unhashable type: '%s'"%type(k).__name__)
+                    TypeError("unhashable type: '%s'"\
+                              %type(k).__name__)
 
                         try    : val.__iter__()
                         except :
-                            if type(val)!=str : raise \
-                    TypeError("'%s' object is not iterable"%type(val).__name__)
+                            if not isinstance(val,str) : raise \
+                    TypeError("'%s' object is not iterable"\
+                              %type(val).__name__)
 
                 # obj is list/tuple or list/tuple subclass
                 else:
@@ -147,16 +177,19 @@ class DictSet(dict):
 
                         try    : k.__hash__()
                         except : raise \
-                    TypeError("unhashable type: '%s'"%type(k).__name__)
+                    TypeError("unhashable type: '%s'"\
+                              %type(k).__name__)
 
                         try    : val.__iter__()
                         except :
-                            if type(val)!=str : raise \
-                    TypeError("'%s' object is not iterable"%type(val).__name__)
+                            if not isinstance(val,str) : raise \
+                    TypeError("'%s' object is not iterable"\
+                              %type(val).__name__)
 
             # obj is not iterable, e.g. an int, float, etc.
             else:
-                raise TypeError("'%s' object is not iterable"%type(obj).__name__)
+                raise TypeError("'%s' object is not iterable"\
+                                %type(obj).__name__)
                     
         # check the keyword arguments
         for (k,val) in list(kwds.items()):
@@ -164,8 +197,9 @@ class DictSet(dict):
             # so we just need to check that the values are iterable
             try    : val.__iter__()
             except :
-                if type(val)!=str: raise \
-                    TypeError("'%s' object is not iterable"%type(val).__name__)
+                if not isinstance(val,str): raise \
+                    TypeError("'%s' object is not iterable"\
+                              %type(val).__name__)
 
 
         # At this point we can be fairly certain the args and kwds 
@@ -223,7 +257,7 @@ class DictSet(dict):
             >>> M
             {'c': set([2, 3, 4]), 'b': set([1, 2, 3])}
         """        
-        if type(d)!=DictSet:
+        if not isinstance(d, DictSet):
             try    : d=DictSet(copy(d))
             except : raise
         
@@ -252,7 +286,6 @@ class DictSet(dict):
             True
 
         """
-##        print self,d
         
         # Fails of d is not mappable with iterable values
         try    : d=DictSet(d)
@@ -262,7 +295,7 @@ class DictSet(dict):
         # if they don't we know they aren't equal and
         # can return False
         if len(set((k for (k,v) in list(self.items()) if len(v)!=0))  ^ \
-               set((k for (k,v) in list(d.items())    if len(v)!=0))) > 0:
+               set((k for (k,v) in list(   d.items()) if len(v)!=0))) > 0:
             return False
 
         # at this point we know they have the same keys
@@ -300,7 +333,7 @@ class DictSet(dict):
         # if they don't we know they aren't equal and
         # can return False
         if len(set((k for (k,v) in list(self.items()) if len(v)!=0))  ^ \
-               set((k for (k,v) in list(d.items())    if len(v)!=0))) > 0:
+               set((k for (k,v) in list(   d.items()) if len(v)!=0))) > 0:
             return True
 
         # at this point we know they have the same keys
@@ -332,7 +365,7 @@ class DictSet(dict):
             >>> L.issubset(M)
             True
         """
-        if type(d)!=DictSet:
+        if not isinstance(d, DictSet):
             try    : d=DictSet(copy(d))
             except : raise
             
@@ -359,7 +392,7 @@ class DictSet(dict):
             >>> L<={}
             False
         """        
-        if type(d)!=DictSet:
+        if not isinstance(d, DictSet):
             try    : d=DictSet(copy(d))
             except : raise
         
@@ -384,7 +417,7 @@ class DictSet(dict):
             >>> L.issuperset({})
             True
         """        
-        if type(d)!=DictSet:
+        if not isinstance(d, DictSet):
             try    : d=DictSet(copy(d))
             except : raise
 
@@ -411,7 +444,7 @@ class DictSet(dict):
             >>> L>=DictSet()
             True
         """        
-        if type(d)!=DictSet:
+        if not isinstance(d, DictSet):
             try    : d=DictSet(copy(d))
             except : raise
         
@@ -443,7 +476,7 @@ class DictSet(dict):
             >>> M
             {'c': set([2, 3, 4]), 'b': set([1, 2, 3])}
         """        
-        if type(d)!=DictSet:
+        if not isinstance(d, DictSet):
             try    : d=DictSet(copy(d))
             except : raise
 
@@ -482,7 +515,7 @@ class DictSet(dict):
             >>> M
             {'c': set([2, 3, 4]), 'b': set([1, 2, 3])}
         """        
-        if type(d)!=DictSet:
+        if not isinstance(d, DictSet):
             try    : d=DictSet(copy(d))
             except : raise
         
@@ -513,7 +546,7 @@ class DictSet(dict):
             >>> M
             {'a': set([2, 3, 4]), 'c': set([4, 5, 6]), 'b': set([4, 5, 6, 7])}
         """        
-        if type(d)!=DictSet:
+        if not isinstance(d, DictSet):
             try    : d=DictSet(copy(d))
             except : raise
 
@@ -554,7 +587,7 @@ class DictSet(dict):
             >>> M
             {'a': set([2, 3, 4]), 'c': set([4, 5, 6]), 'b': set([4, 5, 6, 7])}
         """        
-        if type(d)!=DictSet:
+        if not isinstance(d, DictSet):
             try    : d=DictSet(copy(d))
             except : raise
         
@@ -587,7 +620,7 @@ class DictSet(dict):
             >>> M
             {'a': set([2, 3, 4]), 'c': set([4, 5, 6]), 'b': set([4, 5, 6, 7])}
         """        
-        if type(d)!=DictSet:
+        if not isinstance(d, DictSet):
             try    : d=DictSet(copy(d))
             except : raise
 
@@ -625,7 +658,7 @@ class DictSet(dict):
             >>> M
             {'a': set([2, 3, 4]), 'c': set([4, 5, 6]), 'b': set([4, 5, 6, 7])}
         """        
-        if type(d)!=DictSet:
+        if not isinstance(d, DictSet):
             try    : d=DictSet(copy(d))
             except : raise
         
@@ -655,7 +688,7 @@ class DictSet(dict):
             True
             
         """        
-        if type(d)!=DictSet:
+        if not isinstance(d, DictSet):
             try    : d=DictSet(copy(d))
             except : raise
 
@@ -691,7 +724,7 @@ class DictSet(dict):
             >>> L^{}==L
             True
         """        
-        if type(d)!=DictSet:
+        if not isinstance(d, DictSet):
             try    : d=DictSet(copy(d))
             except : raise
         
@@ -722,7 +755,7 @@ class DictSet(dict):
             >>> M
             {'c': set([2])}
         """        
-        if type(d)!=DictSet:
+        if not isinstance(d, DictSet):
             try    : d=DictSet(copy(d))
             except : raise
         
@@ -765,7 +798,7 @@ class DictSet(dict):
             >>> L
             {'a': set([1, 2, 3]), 'b': set([2, 3])}
         """        
-        if type(d)!=DictSet:
+        if not isinstance(d, DictSet):
             try    : d=DictSet(copy(d))
             except : raise
         
@@ -795,7 +828,7 @@ class DictSet(dict):
             >>> M
             {'c': set([2, 3, 4]), 'b': set([1, 2, 3])}
         """        
-        if type(d)!=DictSet:
+        if not isinstance(d, DictSet):
             try    : d=DictSet(copy(d))
             except : raise
         
@@ -829,7 +862,7 @@ class DictSet(dict):
             >>> M
             {'c': set([2, 3, 4]), 'b': set([1, 2, 3])}
         """        
-        if type(d)!=DictSet:
+        if not isinstance(d, DictSet):
             try    : d=DictSet(copy(d))
             except : raise
         
@@ -860,7 +893,7 @@ class DictSet(dict):
             >>> M
             {'c': set([2, 3, 4]), 'b': set([1, 2, 3])}
         """        
-        if type(d)!=DictSet:
+        if not isinstance(d, DictSet):
             try    : d=DictSet(copy(d))
             except : raise
         
@@ -895,7 +928,7 @@ class DictSet(dict):
             >>> M
             {'c': set([2, 3, 4]), 'b': set([1, 2, 3])}
         """        
-        if type(d)!=DictSet:
+        if not isinstance(d, DictSet):
             try    : d=DictSet(copy(d))
             except : raise
         
@@ -935,8 +968,6 @@ class DictSet(dict):
             >>> A
             {1: set(['a', 'c', 'b', 'd']), 2: set(['e', 'g', 'f']), 3: set([])}
         """
-        try    : k.__hash__()
-        except : raise TypeError("unhashable type: '%s'"%type(k).__name__)
 
         if k not in self:
             self[k]=set()
@@ -967,17 +998,13 @@ class DictSet(dict):
             >>> C
             {1: set(['abc', 'bcd', 'def']), 2: set(['xyz', 'qrs', 'efg'])}
         """
-        try    : k.__hash__()
-        except : raise TypeError("unhashable type: '%s'"%type(k).__name__)
-
-        try    : val.__iter__()
-        except :
-            if type(val)==str : val=[c for c in val]
-            else : raise \
-                 TypeError("'%s' object is not iterable"%type(val).__name__)
-        
-        if type(val)==set : dict.__setitem__(self, k, val)
-        else              : dict.__setitem__(self, k, set(val))
+        if isinstance(val,set):
+            super(DictSet, self).__setitem__(k, val)
+        else:
+            try:
+                super(DictSet, self).__setitem__(k, set(val))
+            except:
+                raise
 
     def __contains__(self, k):
         """
@@ -991,8 +1018,6 @@ class DictSet(dict):
             >>> 'c' in L
             True
         """
-        try    : k.__hash__()
-        except : raise TypeError("unhashable type: '%s'"%type(k).__name__)
 
         return k in [key for (key,val) in list(self.items()) if len(val)>0]
 
@@ -1016,19 +1041,13 @@ class DictSet(dict):
             >>> L.get('b',[5,6,7,8])
             set([8, 5, 6, 7])
         """
-        try    : k.__hash__()
-        except : raise TypeError("unhashable type: '%s'"%type(k).__name__)
+        if k in self : return self[k]
+        if val==None : return
 
-        if k in self  : return self[k]
-        elif val==None : return
-
-        try    : val.__iter__()
-        except :
-            if type(val)==str : val=[c for c in val]
-            else : raise \
-                 TypeError("'%s' object is not iterable"%type(val).__name__)
-        
-        return set(val)
+        try:
+            return set(val)
+        except:
+            raise
 
     def setdefault(self, k, val=None):
         """
@@ -1057,24 +1076,15 @@ class DictSet(dict):
             {'a': set([1, 2, 3, 4]), 'c': set([]), 'b': set([8, 5, 6, 7])}
             
         """
-        try    : k.__hash__()
-        except : raise TypeError("unhashable type: '%s'"%type(k).__name__)
+        if k in self : return self[k]
 
-        if k in self  : return self[k]
-        elif val==None : return
-
-        try    : val.__iter__()
-        except :
-            if type(val)==str : val=[c for c in val]
-            else : raise \
-                 TypeError("'%s' object is not iterable"%type(val).__name__)
-
-        if val!=None:
-            dict.__setitem__(self, k, set(val))
-            return self[k]
+        if val==None : return
         else:
-            return set([])
-        
+            try:
+                super(DictSet, self).__setitem__(k, set(val))
+            except:
+                raise
+            return self[k]
         
     def copy(self):
         """
@@ -1118,9 +1128,6 @@ class DictSet(dict):
             {'b': set([2, 3])}
             
         """
-        try    : k.__hash__()
-        except : raise TypeError("unhashable type: '%s'"%type(k).__name__)
-
         if k not in self:
             raise KeyError(k)
         
@@ -1164,13 +1171,58 @@ class DictSet(dict):
             except : pass
         else:
             try    : del self[k]
-            except : pass 
+            except : pass
+
+    def __repr__(self):
+        # borrowed from the collections module in the standard library 
+        'ds.__repr__() <==> repr(od)'
+        if not self:
+            return '%s()'%(self.__class__.__name__,)
+        return '%s(%r)'%(self.__class__.__name__, list(self.items()))
+
+    def unique_combinations(self,keys=None):
+
+        # it the keys argument is not supplied assume the
+        # user wants the unique combinations of all the
+        # elements of all the sets
+        if keys==None: keys = sorted(self.keys())
+
+        # eliminate keys to sets that have zero cardinality
+        try    : keys=[k for k in keys if k in self]
+        except : raise \
+            TypeError("'%s' object is not iterable"%type(keys).__name__)
+
+        # if the keys list is empty we can return an empty generator
+        if len(keys)==0: yield
+        else:
             
+            # the number of unique combinations is the product 
+            # of the cardinalities of the non-zero sets
+            N=reduce(int.__mul__,(len(self[k]) for k in keys))
+
+            # now we need to build a dict of generators so we
+            # can build a generator or generators. To do this
+            # we need to figure out the each and times
+            # parameters to pass to rep()
+            gen_dict={}
+            each,times,prev_n=1,0,0
+            for i,k in enumerate(reversed(keys)):
+                if i!=0:
+                    each*=prev_n
+                times=N/(len(self[k])*each)
+                prev_n=len(self[k])
+
+                gen_dict[k]=rep_generator(sorted(self[k]),
+                                          int(times),int(each))
+
+            # Now we just have to yield the results
+            for i in range(N):
+                yield [next(gen_dict[k]) for k in keys]
 
 if __name__ == "__main__":
     import doctest
-##    doctest.testmod()
-    doctest.testmod(verbose=True,report=True)
+    doctest.testmod()
+##    doctest.testmod(verbose=True,report=True)
 
 
 

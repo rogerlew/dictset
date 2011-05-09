@@ -34,6 +34,7 @@
 This unittest tests the dictset module.
 """
 
+import sys
 import unittest
 import doctest
 import random
@@ -233,11 +234,10 @@ class TestDictSet_remove(unittest.TestCase):
         R =         s2l('a1 c56  7')
         L.remove('c','8')
         
-        with self.assertRaises(TypeError) as cm:
+        with self.assertRaises(KeyError) as cm:
             L.remove([],'8')
 
-        self.assertEqual(str(cm.exception),
-                "unhashable type: 'list'")
+        self.assertEqual(str(cm.exception),'[]')
 
 class TestDictSet_add(unittest.TestCase):
     def test0(self):
@@ -1247,59 +1247,126 @@ class TestDictSet__ge__(unittest.TestCase):
 class TestDictSet__contains__(unittest.TestCase):
     def test0(self):
         L = DictSet(s2d('a1 c5666788'))
-        
-        with self.assertRaises(TypeError) as cm:
-            set() in L # set is an unhashable type
-
-        self.assertEqual(str(cm.exception),
-                 "unhashable type: 'set'")
+        self.assertFalse(set() in L)
 
     def test1(self):
+        L = DictSet(s2d('a1 c5666788'))
+        self.assertFalse(42 in L)
+        
+    def test2(self):
         L = DictSet(s2d('a1 c5666788 d0'))
         self.assertTrue('a' in L)
 
-    def test2(self):
+    def test3(self):
         L = DictSet(s2d('a1 c5666788 d0'))
         self.assertFalse('d' in L) # d is a key, but has an empty set
 
-    def test3(self):
+    def test4(self):
         L = DictSet(s2d('a1 c5666788 d0'))
         self.assertFalse('e' in L) # really not a key
 
+class TestDictSet__repr__(unittest.TestCase):
+    def test0(self):
+        L = DictSet(s2d('a1 c5666788'))
+
+        if sys.version_info[0]==2:
+            R="DictSet([('a', set(['1'])), ('c', set(['5', '7', '6', '8']))])"
+        elif sys.version_info[0]==3:
+            R="DictSet([('a', {'1'}), ('c', {'5', '7', '6', '8'})])"
+
+        self.assertEqual(L.__repr__(),R)
+        
+    def test1(self):
+        L = DictSet()
+
+        if sys.version_info[0]==2:
+            R="DictSet()"
+        elif sys.version_info[0]==3:
+            R="DictSet()"
+
+        self.assertEqual(L.__repr__(),R)
+
+class TestDictSet_unique_combinations(unittest.TestCase):
+    def test0(self):
+        L = DictSet(s2d('a1 c5666788 d0'))
+        g=L.unique_combinations(keys=[])
+        
+        self.assertEqual([v for v in g],[None])
+
+    def test1(self):
+        L = DictSet(s2d('a12 c5666788 d0'))
+        g=L.unique_combinations()
+        
+        self.assertEqual([v for v in g],[['1','5'],
+                                         ['1','6'],
+                                         ['1','7'],
+                                         ['1','8'],
+                                         ['2','5'],
+                                         ['2','6'],
+                                         ['2','7'],
+                                         ['2','8']])
+        
+    def test2(self):
+        L = DictSet(s2d('a12 c5666788 d12345'))
+        g=L.unique_combinations(keys=['a','c'])
+        
+        self.assertEqual([v for v in g],[['1','5'],
+                                         ['1','6'],
+                                         ['1','7'],
+                                         ['1','8'],
+                                         ['2','5'],
+                                         ['2','6'],
+                                         ['2','7'],
+                                         ['2','8']])
+
+    def test3(self):
+        L = DictSet(s2d('a12 c5666788 d12345'))
+        g=L.unique_combinations(keys=['c','a'])
+        
+        self.assertEqual([v for v in g],[['5','1'],
+                                         ['5','2'],
+                                         ['6','1'],
+                                         ['6','2'],
+                                         ['7','1'],
+                                         ['7','2'],
+                                         ['8','1'],
+                                         ['8','2']])
         
 def suite():
     return unittest.TestSuite((
-                unittest.makeSuite(TestDictSet__init__),
-                unittest.makeSuite(TestDictSet_remove),
-                unittest.makeSuite(TestDictSet_discard),
-                unittest.makeSuite(TestDictSet_add),
-                unittest.makeSuite(TestDictSet_get),
-                unittest.makeSuite(TestDictSet_setdefault),
-                unittest.makeSuite(TestDictSet_copy),
-                unittest.makeSuite(TestDictSet__setitem__),
-                unittest.makeSuite(TestDictSet_update),
-                unittest.makeSuite(TestDictSet__ior__),
-                unittest.makeSuite(TestDictSet_difference_update),
-                unittest.makeSuite(TestDictSet__isub__),
-                unittest.makeSuite(TestDictSet_symmetric_difference_update),
-                unittest.makeSuite(TestDictSet__ixor__),
-                unittest.makeSuite(TestDictSet_intersection_update),
-                unittest.makeSuite(TestDictSet__iand__),
-                unittest.makeSuite(TestDictSet_union),
-                unittest.makeSuite(TestDictSet__or__),
-                unittest.makeSuite(TestDictSet_difference),
-                unittest.makeSuite(TestDictSet__sub__),
-                unittest.makeSuite(TestDictSet_symmetric_difference),
-                unittest.makeSuite(TestDictSet__xor__),
-                unittest.makeSuite(TestDictSet_intersection),
-                unittest.makeSuite(TestDictSet__and__),
-                unittest.makeSuite(TestDictSet__eq__),
-                unittest.makeSuite(TestDictSet__ne__),
-                unittest.makeSuite(TestDictSet_issubset),
-                unittest.makeSuite(TestDictSet__le__),
-                unittest.makeSuite(TestDictSet_issuperset),
-                unittest.makeSuite(TestDictSet__ge__),
-                unittest.makeSuite(TestDictSet__contains__),
+            unittest.makeSuite(TestDictSet__init__),
+            unittest.makeSuite(TestDictSet_remove),
+            unittest.makeSuite(TestDictSet_discard),
+            unittest.makeSuite(TestDictSet_add),
+            unittest.makeSuite(TestDictSet_get),
+            unittest.makeSuite(TestDictSet_setdefault),
+            unittest.makeSuite(TestDictSet_copy),
+            unittest.makeSuite(TestDictSet__setitem__),
+            unittest.makeSuite(TestDictSet_update),
+            unittest.makeSuite(TestDictSet__ior__),
+            unittest.makeSuite(TestDictSet_difference_update),
+            unittest.makeSuite(TestDictSet__isub__),
+            unittest.makeSuite(TestDictSet_symmetric_difference_update),
+            unittest.makeSuite(TestDictSet__ixor__),
+            unittest.makeSuite(TestDictSet_intersection_update),
+            unittest.makeSuite(TestDictSet__iand__),
+            unittest.makeSuite(TestDictSet_union),
+            unittest.makeSuite(TestDictSet__or__),
+            unittest.makeSuite(TestDictSet_difference),
+            unittest.makeSuite(TestDictSet__sub__),
+            unittest.makeSuite(TestDictSet_symmetric_difference),
+            unittest.makeSuite(TestDictSet__xor__),
+            unittest.makeSuite(TestDictSet_intersection),
+            unittest.makeSuite(TestDictSet__and__),
+            unittest.makeSuite(TestDictSet__eq__),
+            unittest.makeSuite(TestDictSet__ne__),
+            unittest.makeSuite(TestDictSet_issubset),
+            unittest.makeSuite(TestDictSet__le__),
+            unittest.makeSuite(TestDictSet_issuperset),
+            unittest.makeSuite(TestDictSet__ge__),
+            unittest.makeSuite(TestDictSet__contains__),
+            unittest.makeSuite(TestDictSet_unique_combinations),
+            unittest.makeSuite(TestDictSet__repr__)
                               ))
 
 if __name__ == "__main__":
