@@ -64,38 +64,23 @@ rep_generator.__doc__="""like r's rep function, but returns a generator
 """
     
 class DictSet(dict):
-    """
-    DictSet() -> new empty dictionary of sets
-    DictSet(mapping) -> new dictionary of sets initialized from a
-        mapping object's (key, value) pairs
-    DictSet(iterable) -> new dictionary of sets initialized as if via:
-        d = DictSet()
-        for k, v in iterable:
-            d[k] = set(v)
-    DictSet(**kwargs) -> new dictionary of sets initialized with the
-        name=value pairs in the keyword argument list.
-        For example:  DictSet(one=[1], two=[2])
-    
-    A dict of sets that behaves like a set.
-
-    Initialization examples:
-        >>> DictSet()
-        {}
-        
-        >>> DictSet(one=[1],two=[2])
-        {'two': set([2]), 'one': set([1])}
-
-        >>> DictSet([('one',[1]),('two',[2])])
-        {'two': set([2]), 'one': set([1])}
-
-        >>> DictSet({'one':[1],'two':[2]})
-        {'two': set([2]), 'one': set([1])}
-
-        >>> DictSet({'one':[1],'two':[2]},three=[3],four=[4])
-        {'four': set([4]), 'three': set([3]), 'two': set([2]), 'one': set([1])}
-    """
+    'A dictionary of sets that behaves like a set.'
     def __init__(*args, **kwds): # args[0] -> 'self'
-
+        """
+            DictSet() -> new empty dictionary of sets
+            DictSet(mapping) -> new dictionary of sets initialized from a
+                mapping object's (key, value) pairs.
+                Because the values become sets they must be iterable
+                
+            DictSet(iterable) -> new dictionary of sets initialized as if via:
+                d = DictSet()
+                for k, v in iterable:
+                    d[k] = set(v)
+                    
+            DictSet(**kwargs) -> new dictionary of sets initialized with the
+                name=value pairs in the keyword argument list.
+                For example:  DictSet(one=[1], two=[2])
+        """
         # passing self with *args ensures that we can use
         # self as keyword for initializing a DictSet
         # Example: DictSet(self='abc', other='efg')
@@ -113,28 +98,23 @@ class DictSet(dict):
         
     def update(*args, **kwds): # args[0] -> 'self'
         """
-        update(...)
-            Update a DictSet with the union of itself and others.
+        DS.update(E, **F) -> None.
 
-            a|=b  <==> a.update(b)
+        Update DS from the union of DictSet/dict/iterable E and F.
+        
+        If E has a .keys() method, does:
+            for k in E:
+                DS[k] |= set(E[k])
             
-          Example:        
-            >>> L=DictSet({'a':[1,2,3],'b':[2,3]})
-            >>> M=DictSet({'b':[1,2,3],'c':[2,3,4]})
-            >>> L.update(M)
-
-          The calling DictSet is modified:
-            >>> L
-            {'a': set([1, 2, 3]), 'c': set([2, 3, 4]), 'b': set([1, 2, 3])}
-            >>> M
-            {'c': set([2, 3, 4]), 'b': set([1, 2, 3])}
-
-          When d is empty nothing is updated:
-            >>> M=DictSet({'b':[1,2,3],'c':[2,3,4]})
-            >>> M.update({})
-            >>> M
-            {'c': set([2, 3, 4]), 'b': set([1, 2, 3])}
+        If E lacks .keys() method, does:
+            for (k, v) in E:
+                DS[k] |= set(v)
             
+        In either case, this is followed by:
+            for k in F:
+                DS[k] |= set(F[k])
+
+        DS|=E  <==> DS.update(E)
         """
         # check the length of args
         if len(args) > 2 : raise \
@@ -233,740 +213,326 @@ class DictSet(dict):
                 args[0][k]=set(val)
             args[0][k]|=set(val)
 
-    def __ior__(self, d): # overloads |=
+    def __ior__(self, E): # overloads |=
         """
-        update(...)
-            Update a DictSet with the union of itself and others.
+        DS.update(E, **F) -> None.
 
-            a|=b  <==> a(b)
-
-          Example:        
-            >>> L=DictSet({'a':[1,2,3],'b':[2,3]})
-            >>> M=DictSet({'b':[1,2,3],'c':[2,3,4]})
-            >>> L|=M
+        Update DS from the union of DictSet/dict/iterable E and F.
+        
+        If E has a .keys() method, does:
+            for k in E:
+                DS[k] |= set(E[k])
             
-          The calling DictSet is modified:
-            >>> L
-            {'a': set([1, 2, 3]), 'c': set([2, 3, 4]), 'b': set([1, 2, 3])}
-            >>> M
-            {'c': set([2, 3, 4]), 'b': set([1, 2, 3])}
+        If E lacks .keys() method, does:
+            for (k, v) in E:
+                DS[k] |= set(v)
+            
+        In either case, this is followed by:
+            for k in F:
+                DS[k] |= set(F[k])
 
-          When d is empty nothing is updated:
-            >>> M=DictSet({'b':[1,2,3],'c':[2,3,4]})
-            >>> M|={}
-            >>> M
-            {'c': set([2, 3, 4]), 'b': set([1, 2, 3])}
-        """        
-        if not isinstance(d, DictSet):
-            try    : d=DictSet(copy(d))
+        DS|=E  <==> DS.update(E)
+        """
+        if not isinstance(E, DictSet):
+            try    : E=DictSet(copy(E))
             except : raise
         
-        return self.union(d)
+        return self.union(E)
     
-    def __eq__(self,d): # overloads ==
+    def __eq__(self,E): # overloads ==
         """
-        __eq__(...)
-            Reports whether another DictSet is equal to this
-            DictSet. Comparisons with non-DictSet type are
-            valid and return False.
+        Returns the equality comparison of DS with E typed
+        as a DictSet. If E cannot be broadcast into a DictSet
+        returns False.
 
-            a==b  <==>  a.__eq__(b)
-
-          Examples:
-            >>> L=DictSet({'a':[1,2,3],'b':[1,2,3,4]})
-            >>> L==[(5.,4),(5.,4)]
-            False
-
-             >>> M={'a':[1,3,2],'b':[2,3,4,4,4,1],'c':[3]}
-            >>> L==M
-            False
-            
-            >>> M={'a':[1,3,2],'b':[2,3,4,4,4,1],'c':[]}
-            >>> L==M
-            True
-
+        DS==E  <==> DS.__eq__(E)
         """
-        
         # Fails of d is not mappable with iterable values
-        try    : d=DictSet(d)
+        try    : E=DictSet(E)
         except : return False
 
-        # check to see if self and d have the same keys
+        # check to see if self and E have the same keys
         # if they don't we know they aren't equal and
         # can return False
         if len(set((k for (k,v) in list(self.items()) if len(v)!=0))  ^ \
-               set((k for (k,v) in list(   d.items()) if len(v)!=0))) > 0:
+               set((k for (k,v) in list(   E.items()) if len(v)!=0))) > 0:
             return False
 
         # at this point we know they have the same keys
         # if all the non-empty set differences have 0 cardinality
         # the sets are equal
-        return sum([len(self.get(k,[])^d.get(k,[])) for k in self])==0
+        return sum([len(self.get(k,[])^E.get(k,[])) for k in self])==0
 
-    def __ne__(self,d): # overloads !=
+    def __ne__(self,E): # overloaEs !=
         """
-        __ne__(...)
-            Reports whether another DictSet is not equal to
-            this DictSet. Comparisons with non-DictSet type
-            are valid and return True.
+        Returns the non-equality comparison of ES with E type
+        as a DictSet. If E cannot be broadcast into a DictSet
+        returns False.
 
-            a==b  <==>  a.__ne__(b)
-
-          Examples:
-            >>> L=DictSet({'a':[1,2,3],'b':[1,2,3,4]})
-            >>> L!=[(5.,4),(5.,4)]
-            True
-            
-            >>> M={'a':[1,2,3],'b':[1,2,3,4,4,4]}
-            >>> L!=M
-            False
-
-            >>> M={'a':[1,2,3],'b':[1,2,3,4,4,4,5]}
-            >>> L!=M
-            True
+        DS==E  <==> DS.__ne__(E)
         """
         # Fails of d is not mappable with iterable values
-        try    : d=DictSet(d)
+        try    : E=DictSet(E)
         except : return True
 
         # check to see if self and d have the same keys
         # if they don't we know they aren't equal and
         # can return False
         if len(set((k for (k,v) in list(self.items()) if len(v)!=0))  ^ \
-               set((k for (k,v) in list(   d.items()) if len(v)!=0))) > 0:
+               set((k for (k,v) in list(   E.items()) if len(v)!=0))) > 0:
             return True
 
         # at this point we know they have the same keys
         # if all the set differences have 0 cardinality
         # the sets are equal
-        return sum((len(self.get(k,[])^d.get(k,[])) for k in self))!=0
+        return sum((len(self.get(k,[])^E.get(k,[])) for k in self))!=0
         
-    def issubset(self, d):
+    def issubset(self, E):
         """
-        issubset(...)
-            Report whether another set contains this DictSet.
+        Report whether all the sets of this DictSet are subsets of the E.
 
-            a<=b  <==> a.issubset(b)
-            
-        Examples:
-            >>> L=DictSet({'a':[1,2,3],'b':[2,3]})
-            >>> M=DictSet({'a':[1,2,3],'b':[2,3,4]})
-            >>> L.issubset(M)
-            True
-            >>> M.issubset(L)
-            False
-            >>> L.issubset(L)
-            True
-            >>> L.issubset({})
-            False
-
-          Ignores empty sets:  
-            >>> L=DictSet({'a':[1,2,3],'b':[2,3],'c':[]})
-            >>> L.issubset(M)
-            True
+        DS<=E  <==> DS.issubset(E)
         """
-        if not isinstance(d, DictSet):
-            try    : d=DictSet(copy(d))
+        if not isinstance(E, DictSet):
+            try    : E=DictSet(copy(E))
             except : raise
             
-        if self==d=={}: return True
+        if self==E=={}: return True
             
-        return all((self.get(k,[])<=d.get(k,[]) for k in set(self)|set(d)))
+        return all((self.get(k,[])<=E.get(k,[]) for k in set(self)|set(E)))
 
-    def __le__(self,d): # overloads <=
+    def __le__(self, E): # overloads <=
         """
-        issubset(...)
-            Report whether another DictSet contains this DictSet.
+        Report whether all the sets of this DictSet are subsets of the E.
 
-            a<=b  <==> a.issubset(b)
-            
-        Examples:
-            >>> L=DictSet({'a':[1,2,3],'b':[2,3]})
-            >>> M=DictSet({'a':[1,2,3],'b':[2,3,4]})
-            >>> L<=M
-            True
-            >>> M<=L
-            False
-            >>> L<=L
-            True
-            >>> L<={}
-            False
+        DS<=E  <==> DS.issubset(E)
         """        
-        if not isinstance(d, DictSet):
-            try    : d=DictSet(copy(d))
-            except : raise
-        
-        return self.issubset(d)
+        return self.issubset(E)
 
-    def issuperset(self, d):
+    def issuperset(self, E):
         """
-        issuperset(...)
-            Report whether this DictSet contains another DictSet.
+        Report whether all the sets of this DictSet are supersets of the E.
 
-            a>=b  <==> a.issuperset(b)
-            
-        Examples:
-            >>> L=DictSet({'a':[1,2,3],'b':[2,3]})
-            >>> M=DictSet({'a':[1,2,3],'b':[2,3,4]})
-            >>> M.issuperset(L)
-            True
-            >>> L.issuperset(M)
-            False
-            >>> L.issuperset(L)
-            True
-            >>> L.issuperset({})
-            True
+        DS>=E  <==> DS.issuperset(E)
         """        
-        if not isinstance(d, DictSet):
-            try    : d=DictSet(copy(d))
+        if not isinstance(E, DictSet):
+            try    : E=DictSet(copy(E))
             except : raise
 
-        if self==d=={}: return True
+        if self==E=={}: return True
             
-        return all((self.get(k,[])>=d.get(k,[]) for k in set(self)|set(d)))
+        return all((self.get(k,[])>=E.get(k,[]) for k in set(self)|set(E)))
 
-    def __ge__(self,d): # overloads >=
+    def __ge__(self,E): # overloads >=
         """
-        issuperset(...)
-            Report whether this DictSet contains another DictSet.
+        Report whether all the sets of this DictSet are supersets of the E.
 
-            a>=b  <==> a.issuperset(b)
-            
-        Examples:
-            >>> L=DictSet({'a':[1,2,3],'b':[2,3]})
-            >>> M=DictSet({'a':[1,2,3],'b':[2,3,4]})
-            >>> M>=L
-            True
-            >>> L>=M
-            False
-            >>> L>=L
-            True
-            >>> L>=DictSet()
-            True
+        DS>=E  <==> DS.issuperset(E)
         """        
-        if not isinstance(d, DictSet):
-            try    : d=DictSet(copy(d))
-            except : raise
+        return self.issuperset(E)
         
-        return self.issuperset(d)
-        
-    def union(self, d):
+    def union(self, E):
         """
-        union(...)
-            Return the union of DictSets as a new DictSet.
-            
-            (i.e. all elements that are in either sets of
-             the DictSets.)
+        Return the union of the sets of self with the sets of E.
+        
+        (i.e. all elements that are in either sets of the DictSets.)
 
-            a|b  <==> a.union(b)
-            
-          Example:        
-            >>> L=DictSet({'a':[1,2,3],'b':[2,3]})
-            >>> M=DictSet({'b':[1,2,3],'c':[2,3,4]})
-            >>> L.union(M)
-            {'a': set([1, 2, 3]), 'c': set([2, 3, 4]), 'b': set([1, 2, 3])}
-            >>> L.union(M) == M.union(L)
-            True
-            >>> L.union({})==L
-            True
-            
-          The original DictSets stay intact:
-            >>> L
-            {'a': set([1, 2, 3]), 'b': set([2, 3])}
-            >>> M
-            {'c': set([2, 3, 4]), 'b': set([1, 2, 3])}
+        DS|E  <==> DS.union(E)
         """        
-        if not isinstance(d, DictSet):
-            try    : d=DictSet(copy(d))
+        if not isinstance(E, DictSet):
+            try    : E=DictSet(copy(E))
             except : raise
 
         foo=deepcopy(self)
-        for k in set(foo)|set(d):
-            foo.setdefault(k,[])\
-               .update(d.get(k,[]))
-            if len(foo[k])==0:
-                del foo[k]
+        for k in set(foo)|set(E):
+            foo.setdefault(k,[]).update(E.get(k,[]))
+            if len(foo[k])==0 : del foo[k]
 
         return foo
 
-    def __or__(self,d): # overloads |
+    def __or__(self,E): # overloads |
         """
-        union(...)
-            Return the union of DictSets as a new DictSet.
-            
-            (i.e. all elements that are in either sets of
-             the DictSets.)
-
-            a|b  <==> a.union(b)
-            
-          Example:
-            >>> L=DictSet({'a':[1,2,3],'b':[2,3]})
-            >>> M=DictSet({'b':[1,2,3],'c':[2,3,4]})
-            >>> L|M
-            {'a': set([1, 2, 3]), 'c': set([2, 3, 4]), 'b': set([1, 2, 3])}
-            >>> L|M == M|L
-            True
-            >>> L|{}==L
-            True
-            
-          The original DictSets stay intact:
-            >>> L
-            {'a': set([1, 2, 3]), 'b': set([2, 3])}
-            >>> M
-            {'c': set([2, 3, 4]), 'b': set([1, 2, 3])}
-        """        
-        if not isinstance(d, DictSet):
-            try    : d=DictSet(copy(d))
-            except : raise
+        Return the union of the sets of self with the sets of E.
         
-        return self.union(d)
+        (i.e. all elements that are in either sets of the DictSets.)
 
-    def intersection(self, d):
+        DS|E  <==> DS.union(E)
+        """    
+        return self.union(E)
+
+    def intersection(self, E):
         """
-        intersection(...)
-            Return the intersection of two or more DictSets as a
-            new DictSet.
-            
-            (i.e. elements that are common to all of the sets of
-             the DictSets.)
+        Return the intersection of the sets of self with the sets of E.
+        
+        (i.e. elements that are common to all of the sets of the
+         DictSets.)
 
-            a&b  <==> a.intersection(b)
-            
-          Example:
-            >>> L=DictSet({'a':[1,2,3],'b':[5,6,7]})
-            >>> M=DictSet({'a':[2,3,4],'b':[4,5,6,7],'c':[4,5,6]})
-            >>> L.intersection(M)
-            {'a': set([2, 3]), 'b': set([5, 6, 7])}
-            >>> M.intersection({})
-            {}
-
-          The original DictSets stay intact:
-            >>> L
-            {'a': set([1, 2, 3]), 'b': set([5, 6, 7])}
-            >>> M
-            {'a': set([2, 3, 4]), 'c': set([4, 5, 6]), 'b': set([4, 5, 6, 7])}
-        """        
-        if not isinstance(d, DictSet):
-            try    : d=DictSet(copy(d))
+        DS&E  <==> DS.intersection(E)
+        """           
+        if not isinstance(E, DictSet):
+            try    : E=DictSet(copy(E))
             except : raise
 
         # handle case where d=={}
-        if d=={}: return {}
+        if E=={}: return {}
         
         foo=deepcopy(self)
-        for k in set(foo)|set(d):
-            foo.setdefault(k,[])\
-               .intersection_update(d.get(k,[]))
-            if len(foo[k])==0:
-                del foo[k]
+        for k in set(foo)|set(E):
+            foo.setdefault(k,[]).intersection_update(E.get(k,[]))
+            if len(foo[k])==0 : del foo[k]
 
         return foo
 
-    def __and__(self, d): # overloads &
+    def __and__(self, E): # overloads &
         """
-        intersection(...)
-            Return the intersection of two or more DictSets as a
-            new DictSet.
-            
-            (i.e. elements that are common to all of the sets of
-             the DictSets.)
-
-            a&b  <==> a.intersection(b)
-            
-          Example:
-            >>> L=DictSet({'a':[1,2,3],'b':[5,6,7]})
-            >>> M=DictSet({'a':[2,3,4],'b':[4,5,6,7],'c':[4,5,6]})
-            >>> L&M
-            {'a': set([2, 3]), 'b': set([5, 6, 7])}
-            >>> L&{}
-            {}
-
-          The original DictSets stay intact:
-            >>> L
-            {'a': set([1, 2, 3]), 'b': set([5, 6, 7])}
-            >>> M
-            {'a': set([2, 3, 4]), 'c': set([4, 5, 6]), 'b': set([4, 5, 6, 7])}
-        """        
-        if not isinstance(d, DictSet):
-            try    : d=DictSet(copy(d))
-            except : raise
+        Return the intersection of the sets of self with the sets of E.
         
-        return self.intersection(d)
+        (i.e. elements that are common to all of the sets of the
+         DictSets.)
 
-    def difference(self, d):
+        DS&E  <==> DS.intersection(E)
+        """   
+        return self.intersection(E)
+
+    def difference(self, E):
         """
-        difference(...)
-            Return the difference of two or more DictSets as a
-            new DictSet.
-            
-            (i.e. all elements that are in the sets of one dict
-             but not the others.)
+        Return the difference of the sets of self with the sets of E.
         
-            a-b  <==> a.difference(b)
-            
-          Example:
-            >>> L=DictSet({'a':[1,2,3],'b':[5,6,7]})
-            >>> M=DictSet({'a':[2,3,4],'b':[4,5,6,7],'c':[4,5,6]})
-            >>> L.difference(M)
-            {'a': set([1])}
-            >>> L.difference(M)==M.difference(L)
-            False
-            >>> L.difference({})==L
-            True
-            
-          The original DictSets stay intact:
-            >>> L
-            {'a': set([1, 2, 3]), 'b': set([5, 6, 7])}
-            >>> M
-            {'a': set([2, 3, 4]), 'c': set([4, 5, 6]), 'b': set([4, 5, 6, 7])}
-        """        
-        if not isinstance(d, DictSet):
-            try    : d=DictSet(copy(d))
+        (i.e. all elements that are in the sets of this DictSet but
+         not the others.)
+
+        DS-E  <==> DS.difference(E)
+        """   
+        if not isinstance(E, DictSet):
+            try    : E=DictSet(copy(E))
             except : raise
 
         foo=deepcopy(self)
-        for k in set(foo)|set(d):
-            foo.setdefault(k,[])\
-               .difference_update(d.get(k,[]))
-            if len(foo[k])==0:
-                del foo[k]
+        for k in set(foo)|set(E):
+            foo.setdefault(k,[]).difference_update(E.get(k,[]))
+            if len(foo[k])==0 : del foo[k]
 
         return foo
 
-    def __sub__(self, d): # overloads -
+    def __sub__(self, E): # overloads -
         """
-        difference(...)
-            Return the difference of two or more DictSets as a
-            new DictSet.
-            
-            (i.e. all elements that are in the sets of this
-             DictSet but not the others.)
-
-            a-b  <==> a.difference(b)
+        Return the difference of the sets of self with the sets of E.
         
-          Example:
-            >>> L=DictSet({'a':[1,2,3],'b':[6,7,8]})
-            >>> M=DictSet({'a':[2,3,4],'b':[4,5,6,7],'c':[4,5,6]})
-            >>> L-M
-            {'a': set([1]), 'b': set([8])}
-            >>> L - {}==L
-            True
-            
-          The original DictSets stay intact:
-            >>> L
-            {'a': set([1, 2, 3]), 'b': set([6, 7, 8])}
-            >>> M
-            {'a': set([2, 3, 4]), 'c': set([4, 5, 6]), 'b': set([4, 5, 6, 7])}
-        """        
-        if not isinstance(d, DictSet):
-            try    : d=DictSet(copy(d))
-            except : raise
-        
-        return self.difference(d)
+        (i.e. all elements that are in the sets of this DictSet but
+         not the others.)
 
-    def symmetric_difference(self, d):
+        DS-E  <==> DS.difference(E)
+        """         
+        return self.difference(E)
+
+    def symmetric_difference(self, E):
         """
-        symmetric_difference(...)
-            Return the symmetric difference of two DictSets as a
-            new DictSet.
-            
-            (i.e. all elements that are in exactly one of the
-             sets of the DictSets.)
+        Return the symmetric difference of the sets of self with the
+        sets of E.
+        
+        (i.e. for each DictSet all elements that are in exactly one
+         of the sets .)
 
-            a^b  <==> a.symmetric_difference(b)
-
-          Examples:
-            >>> L=DictSet({'a':[1,2,3],'b':[5,6,7]})
-            >>> M=DictSet({'a':[2,3,4],'b':[4,5,6,7],'c':[4,5,6]})
-            >>> L.symmetric_difference(M)
-            {'a': set([1, 4]), 'c': set([4, 5, 6]), 'b': set([4])}
-            >>> L.symmetric_difference(M) == M.symmetric_difference(L)
-            True
-            >>> L.symmetric_difference(L)
-            {}
-            >>> L.symmetric_difference({})==L
-            True
-            
+        DS^E  <==> DS.symmetric_difference(E)
         """        
-        if not isinstance(d, DictSet):
-            try    : d=DictSet(copy(d))
+        if not isinstance(E, DictSet):
+            try    : E=DictSet(copy(E))
             except : raise
 
         foo=deepcopy(self)
-        for k in set(foo)|set(d):
-            foo.setdefault(k,[])\
-               .symmetric_difference_update(d.get(k,[]))
-            if len(foo[k])==0:
-                del foo[k]
+        for k in set(foo)|set(E):
+            foo.setdefault(k,[]).symmetric_difference_update(E.get(k,[]))
+            if len(foo[k])==0 : del foo[k]
 
         return foo
 
-    def __xor__(self, d): # overloads ^
+    def __xor__(self, E): # overloads ^
         """
-        symmetric_difference(...)
-            Return the symmetric difference of two DictSets as a
-            new DictSet.
-            
-            (i.e. for each DictSet all elements that are in
-             exactly one of the sets .)
+        Return the symmetric difference of the sets of self with the
+        sets of E.
+        
+        (i.e. for each DictSet all elements that are in exactly one
+         of the sets .)
 
-            a^b  <==> a.symmetric_difference(b)
+        DS^E  <==> DS.symmetric_difference(E)
+        """
+        return self.symmetric_difference(E)
 
-          Examples:
-            >>> L=DictSet({'a':[1,2,3],'b':[5,6,7]})
-            >>> M=DictSet({'a':[2,3,4],'b':[4,5,6,7],'c':[4,5,6]})
-            >>> L^M
-            {'a': set([1, 4]), 'c': set([4, 5, 6]), 'b': set([4])}
-            >>> L^M == M^L
-            True
-            >>> L^L
-            {}
-            >>> L^{}==L
-            True
+    def intersection_update(self, E):
+        """
+        Update a DictSet with the intersection of itself and E.
+
+        DS&=E  <==> DS.intersection_update(E)
         """        
-        if not isinstance(d, DictSet):
-            try    : d=DictSet(copy(d))
+        if not isinstance(E, DictSet):
+            try    : E=DictSet(copy(E))
             except : raise
         
-        return self.symmetric_difference(d)
+        for k in set(self)|set(E):
+            self.setdefault(k,[]).intersection_update(E.get(k,[]))
+            if len(self[k])==0 : del self[k]
 
-    def intersection_update(self, d):
+    def __iand__(self, E): # overloads &=
         """
-        intersection_update(...)
-            Update a DictSet with the intersection of
-            itself and another.
+        Update a DictSet with the intersection of itself and E.
 
-            a&=b  <==> a.intersection_update(b)
-            
-          Example:        
-            >>> L=DictSet({'a':[1,2,3],'b':[2,3]})
-            >>> M=DictSet({'b':[1,2,3],'c':[2,3,4]})
-            >>> L.intersection_update(M)
-            
-          The calling DictSet is modified:
-            >>> L
-            {'b': set([2, 3])}
-            >>> M
-            {'c': set([2, 3, 4]), 'b': set([1, 2, 3])}
- 
-          When d is self is cleared:
-            >>> M=DictSet({'b':[1,2,3],'c':[2,3,4]})
-            >>> M.intersection_update({'c':[2]})
-            >>> M
-            {'c': set([2])}
-        """        
-        if not isinstance(d, DictSet):
-            try    : d=DictSet(copy(d))
+        DS&=E  <==> DS.intersection_update(E)
+        """   
+        return self.intersection(E)
+        
+    def difference_update(self, E):
+        """
+        Update a DictSet with the difference of itself and E.
+
+        DS-=E  <==> DS.difference_update(E)
+        """     
+        if not isinstance(E, DictSet):
+            try    : E=DictSet(copy(E))
             except : raise
         
-        for k in set(self)|set(d):
-            self.setdefault(k,[])\
-                .intersection_update(d.get(k,[]))
-            if len(self[k])==0:
-                del self[k]
+        for k in set(self)|set(E):
+            self.setdefault(k,[]).difference_update(E.get(k,[]))
+            if len(self[k])==0 : del self[k]
 
-
-    def __iand__(self, d): # overloads &=
+    def __isub__(self, E): # overloads -=
         """
-        intersection_update(...)
-            Update a DictSet with the intersection of
-            itself and another.
+        Update a DictSet with the difference of itself and E.
 
-            a&=b  <==> a.intersection_update(b)
-            
-          Example:        
-            >>> L=DictSet({'a':[1,2,3],'b':[2,3]})
-            >>> M=DictSet({'b':[1,2,3],'c':[2,3,4]})
-            >>> L&=M
-            
-          The calling DictSet is modified:
-            >>> L
-            {'b': set([2, 3])}
-            >>> M
-            {'c': set([2, 3, 4]), 'b': set([1, 2, 3])}
+        DS-=E  <==> DS.difference_update(E)
+        """     
+        return self.difference(E)
+        
+    def symmetric_difference_update(self, E):
+        """
+        Update a DictSet with the symmetric difference of
+        itself and E.
 
-          When d is empty nothing is updated:
-            >>> M=DictSet({'b':[1,2,3],'c':[2,3,4]})
-            >>> M&={}
-            >>> M
-            {}
-
-          Should remove empty sets
-            >>> L=DictSet({'a':[1,2,3],'b':[2,3],'c':[]})
-            >>> M=DictSet({'a':[1,2,3],'b':[2,3,4]})
-            >>> L&=M # intersection update
-            >>> L
-            {'a': set([1, 2, 3]), 'b': set([2, 3])}
-        """        
-        if not isinstance(d, DictSet):
-            try    : d=DictSet(copy(d))
+        DS^=E  <==> DS.symmetric_difference_update(E)
+        """     
+        if not isinstance(E, DictSet):
+            try    : E=DictSet(copy(E))
             except : raise
         
-        return self.intersection(d)
-        
-    def difference_update(self, d):
+        for k in set(self)|set(E):
+            self.setdefault(k,[]).symmetric_difference_update(E.get(k,[]))
+            if len(self[k])==0 :del self[k]
+
+    def __ixor__(self, E): # overloads ^=
         """
-        difference_update(...)
-            Remove all elements of another DictSet from this DictSet.
+        Update a DictSet with the symmetric difference of
+        itself and E.
 
-            a-=b  <==> a.difference_update(b)
-            
-          Example:
-            >>> L=DictSet({'a':[1,2,3],'b':[6,7,8]})
-            >>> M=DictSet({'a':[2,3,4],'b':[4,5,6,7],'c':[4,5,6]})
-            >>> L.difference_update(M)
-        
-          The calling DictSet is modified:
-            >>> L
-            {'a': set([1]), 'b': set([8])}
-            >>> M
-            {'a': set([2, 3, 4]), 'c': set([4, 5, 6]), 'b': set([4, 5, 6, 7])}
-
-          When d is empty self is cleared:
-            >>> M=DictSet({'b':[1,2,3],'c':[2,3,4]})
-            >>> M.difference_update({})
-            >>> M
-            {'c': set([2, 3, 4]), 'b': set([1, 2, 3])}
-        """        
-        if not isinstance(d, DictSet):
-            try    : d=DictSet(copy(d))
-            except : raise
-        
-        for k in set(self)|set(d):
-            self.setdefault(k,[])\
-                .difference_update(d.get(k,[]))
-            if len(self[k])==0:
-                del self[k]
-
-    def __isub__(self, d): # overloads -=
-        """
-        difference_update(...)
-            Remove all elements of another DictSet from this DictSet.
-
-            a-=b  <==> a.difference_update(b)
-            
-          Example:
-            >>> L=DictSet({'a':[1,2,3],'b':[6,7,8]})
-            >>> M=DictSet({'a':[2,3,4],'b':[4,5,6,7],'c':[4,5,6]})
-            >>> L-=M
-        
-          The calling DictSet is modified:
-            >>> L
-            {'a': set([1]), 'b': set([8])}
-            >>> M
-            {'a': set([2, 3, 4]), 'c': set([4, 5, 6]), 'b': set([4, 5, 6, 7])}
-            
-          When d is empty nothing is updated:
-            >>> M=DictSet({'b':[1,2,3],'c':[2,3,4]})
-            >>> M-={}
-            >>> M
-            {'c': set([2, 3, 4]), 'b': set([1, 2, 3])}
-        """        
-        if not isinstance(d, DictSet):
-            try    : d=DictSet(copy(d))
-            except : raise
-        
-        return self.difference(d)
-        
-    def symmetric_difference_update(self, d):
-        """
-        symmetric_difference_update(...)
-            Update a DictSet with the symmetric difference of
-            itself and another.
-
-            a^=b  <==> a.symmetric_difference_update(b)
-            
-          Example:
-            >>> L=DictSet({'a':[1,2,3],'b':[5,6,7]})
-            >>> M=DictSet({'a':[2,3,4],'b':[4,5,6,7],'c':[4,5,6]})
-            >>> L.symmetric_difference_update(M)
-        
-          The calling DictSet is modified:
-            >>> L
-            {'a': set([1, 4]), 'c': set([4, 5, 6]), 'b': set([4])}
-            >>> M
-            {'a': set([2, 3, 4]), 'c': set([4, 5, 6]), 'b': set([4, 5, 6, 7])}
-            
-          When d is empty nothing is updated:
-            >>> M=DictSet({'b':[1,2,3],'c':[2,3,4]})
-            >>> M.symmetric_difference_update({})
-            >>> M
-            {'c': set([2, 3, 4]), 'b': set([1, 2, 3])}
-        """        
-        if not isinstance(d, DictSet):
-            try    : d=DictSet(copy(d))
-            except : raise
-        
-        for k in set(self)|set(d):
-            self.setdefault(k,[])\
-                .symmetric_difference_update(d.get(k,[]))
-            if len(self[k])==0:
-                del self[k]
-
-    def __ixor__(self, d): # overloads ^=
-        """
-        symmetric_difference_update(...)
-            Update a DictSet with the symmetric difference of
-            itself and another.
-
-            a^=b  <==> a.symmetric_difference_update(b)
-
-          Example:
-            >>> L=DictSet({'a':[1,2,3],'b':[5,6,7]})
-            >>> M=DictSet({'a':[2,3,4],'b':[4,5,6,7],'c':[4,5,6]})
-            >>> L.symmetric_difference_update(M)
-        
-          The calling DictSet is modified:
-            >>> L
-            {'a': set([1, 4]), 'c': set([4, 5, 6]), 'b': set([4])}
-            >>> M
-            {'a': set([2, 3, 4]), 'c': set([4, 5, 6]), 'b': set([4, 5, 6, 7])}
-            
-          When d is empty nothing is updated:
-            >>> M=DictSet({'b':[1,2,3],'c':[2,3,4]})
-            >>> M^={}
-            >>> M
-            {'c': set([2, 3, 4]), 'b': set([1, 2, 3])}
-        """        
-        if not isinstance(d, DictSet):
-            try    : d=DictSet(copy(d))
-            except : raise
-        
-        return self.symmetric_difference(d)
+        DS^=E  <==> DS.symmetric_difference_update(E)
+        """    
+        return self.symmetric_difference(E)
 
     def add(self, k, v=None):
         """
-        add(...)
-            Add an element to a DictSet with key given by k.
-            
-            This has no effect if the element is already present.
-
-          Handling sets of numbers:
-            >>> L=DictSet({'a':[1,2,3,4],'b':[5,6,7]})
-            >>> L.add('b',8)
-            >>> L
-            {'a': set([1, 2, 3, 4]), 'b': set([5, 6, 7, 8])}
-            >>> L.add('c',10)
-            >>> L
-            {'a': set([1, 2, 3, 4]), 'c': set([10]), 'b': set([5, 6, 7, 8])}
-            >>> L.add('c',10)
-            >>> L
-            {'a': set([1, 2, 3, 4]), 'c': set([10]), 'b': set([5, 6, 7, 8])}
-            
-          Handling sets of letters:
-            >>> A=DictSet({1:'abcd',2:'efg'})
-            >>> A.add(2,'h')
-            >>> A
-            {1: set(['a', 'c', 'b', 'd']), 2: set(['e', 'g', 'f', 'h'])}
-            >>> A.add(3,'hello')
-            >>> A[3]
-            set(['hello'])
-
-          Add an empty set:
-            >>> A=DictSet({1:'abcd',2:'efg'})
-            >>> A.add(3)
-            >>> A
-            {1: set(['a', 'c', 'b', 'd']), 2: set(['e', 'g', 'f']), 3: set([])}
+        Add an element v to a set DS[k].
+        This has no effect if the element v is already present in DS[k].
+        
+        When v is not supplied adds a new set at DS[k].
+        Raises KeyError if k is not hashable.
         """
 
         if k not in self:
@@ -976,105 +542,38 @@ class DictSet(dict):
             try : self[k].add(v)
             except : raise
 
-    def __setitem__(self,k,val):
-        """
-          Handling sets of numbers:
-            >>> L=DictSet()
-            >>> L['a']=[1,2,3,4]
-            >>> L
-            {'a': set([1, 2, 3, 4])}
-
-          Handling sets of letters:
-            >>> A=DictSet()
-            >>> A[1]='xyz'
-            >>> A
-            {1: set(['y', 'x', 'z'])}
-
-          Handling sets of words:
-            >>> C=DictSet({1:['abc','bcd','def']})
-            >>> C
-            {1: set(['abc', 'bcd', 'def'])}
-            >>> C[2]=['qrs','efg','xyz']
-            >>> C
-            {1: set(['abc', 'bcd', 'def']), 2: set(['xyz', 'qrs', 'efg'])}
-        """
-        if isinstance(val,set):
-            super(DictSet, self).__setitem__(k, val)
+    def __setitem__(self,k,v):
+        """DS.__setitem__(k, v) <==> x[k]=set(v)"""
+        if isinstance(v,set):
+            super(DictSet, self).__setitem__(k, v)
         else:
-            try:
-                super(DictSet, self).__setitem__(k, set(val))
-            except:
-                raise
+            try    : super(DictSet, self).__setitem__(k, set(v))
+            except : raise
 
     def __contains__(self, k):
         """
-
-          Examples:
-            >>> L=DictSet({'a':[],'b':[1,2,3],'c':[1]})
-            >>> 'a' in L
-            False
-            >>> 'b' in L
-            True
-            >>> 'c' in L
-            True
+        True if DS has a key k and len(DS[k])!=0, else False
+        
+        DS.__contains__(k) <==> k in D 
         """
 
         return k in [key for (key,val) in list(self.items()) if len(val)>0]
 
-    def get(self, k, val=None):
+    def get(self, k, v=None):
         """
-        setdefault(...)
-            returns set at self[k] if k is in self,
-            if k is not in self it returns val as
-            a set.
-
-          Example:
-            >>> L=DictSet({'a':[1,2,3,4]})
-            >>> L.get('a')
-            set([1, 2, 3, 4])
-
-            >>> L.get('b')
-            
-            >>> L.get('b',[])
-            set([])
-
-            >>> L.get('b',[5,6,7,8])
-            set([8, 5, 6, 7])
+        DS.get(k[,v]) -> DS[v] if k in DS, else set(v).
+        v defaults to None.
         """
         if k in self : return self[k]
-        if val==None : return
+        if v==None   : return
 
-        try:
-            return set(val)
-        except:
-            raise
+        try    : return set(v)
+        except : raise
 
     def setdefault(self, k, val=None):
         """
-        setdefault(...)
-            setdefault() is like get(), except that if k is missing,
-            val is both returned and inserted into the dictionary as
-            the value of k. val defaults to None.
-
-          Example:
-            >>> L=DictSet({'a':[1,2,3,4]})
-            >>> L.setdefault('a')
-            set([1, 2, 3, 4])
-
-            >>> b=L.setdefault('b')
-
-            >>> L.setdefault('b',[5,6,7,8])
-            set([8, 5, 6, 7])
-
-            >>> L
-            {'a': set([1, 2, 3, 4]), 'b': set([8, 5, 6, 7])}
-
-            >>> L.setdefault('c',[])
-            set([])
-
-            >>> L
-            {'a': set([1, 2, 3, 4]), 'c': set([]), 'b': set([8, 5, 6, 7])}
-            
+        DS.setdefault(k[,v]) -> DS.get(k,v), also set DS[k]=set(v)
+        if k not in D.  v defaults to None.
         """
         if k in self : return self[k]
 
@@ -1087,46 +586,16 @@ class DictSet(dict):
             return self[k]
         
     def copy(self):
-        """
-        copy(...)
-            Return a shallow copy of a DictSet.
-
-          Examples:
-            >>> L=DictSet({'a':[1,2,3],'b':[2,3]})
-            >>> M=L.copy()
-            >>> M.add('c',4)
-            >>> L
-            {'a': set([1, 2, 3]), 'b': set([2, 3])}
-            >>> M
-            {'a': set([1, 2, 3]), 'c': set([4]), 'b': set([2, 3])}
-        """
+        """DS.copy() -> a shallow copy of DS."""
         return copy(self)
     
     def remove(self, k, v=None):
         """
-        remove(...)
-            Remove an element from a DictSet with key given by k;
-
-            DictSet must contain key k.
-            If k is not a key, raise a KeyError.
+        Remove element v from a set DS[k]; it must be a member.
+        If the element v is not a member of D[k], raise a KeyError.
             
-            v must be a member of set self[k].
-            If the element is not a member, raise a KeyError.
-
-            see also: DictSet.discard
-            
-          Removing an element:
-            >>> L=DictSet({'a':[1,2,3],'b':[2,3]})
-            >>> L.remove('a',3)
-            >>> L
-            {'a': set([1, 2]), 'b': set([2, 3])}
-
-          Removing a set:
-            >>> L=DictSet({'a':[1,2,3],'b':[2,3]})
-            >>> L.remove('a')
-            >>> L
-            {'b': set([2, 3])}
-            
+        If v is not supplied removes DS[k]; it must be an item.
+        if D[k] is not an item, raise a KeyError.
         """
         if k not in self:
             raise KeyError(k)
@@ -1139,31 +608,11 @@ class DictSet(dict):
             
     def discard(self, k, v=None):
         """
-        discard(...)
-            Remove an element from a DictSet if it is a member.
-
-            If DictSet does not have k as a key, do nothing.
-            If the v is not a member of self[k], do nothing.
-
-            see also: DictSet.remove
-
-          Discarding an element:
-            >>> L=DictSet({'a':[1,2,3],'b':[2,3]})
-            >>> L.discard('a',3)
-            >>> L
-            {'a': set([1, 2]), 'b': set([2, 3])}
-            >>> L.discard('c',4)
-            >>> L.discard('a',4)
-
-          Discarding a set:
-            >>> L=DictSet({'a':[1,2,3],'b':[2,3]})
-            >>> L.discard('a')
-            >>> L
-            {'b': set([2, 3])}
-
-          Discard quietly pass all errors:
-            >>> L=DictSet({'a':[1,2,3],'b':[2,3]})
-            >>> L.discard([])
+        Remove element v from a set DS[k]; it must be a member.
+        If the element v is not a member of D[k], do nothing.
+            
+        If v is not supplied removes DS[k].
+        If D[k] is not an item, raise a KeyError.
         """
 
         if v!=None:
@@ -1173,15 +622,27 @@ class DictSet(dict):
             try    : del self[k]
             except : pass
 
+    
+    # borrowed from the collections.OrderedDict in the standard library 
     def __repr__(self):
-        # borrowed from the collections module in the standard library 
-        'ds.__repr__() <==> repr(od)'
+        """DS.__repr__() <==> repr(DS)"""
         if not self:
             return '%s()'%(self.__class__.__name__,)
         return '%s(%r)'%(self.__class__.__name__, list(self.items()))
 
     def unique_combinations(self,keys=None):
+        """
+        Returns a generator yielding the unique combination of
+        elements. Both the keys of DS and the elements of the
+        sets are sorted.
 
+        When a key list (the keys argument) is supplied only the
+        unique combinations of the sets specified by the keys are
+        yielded by the generator.
+
+        The combinations are sorted by slowest repeating to fastest
+        repeating.
+        """
         # it the keys argument is not supplied assume the
         # user wants the unique combinations of all the
         # elements of all the sets
