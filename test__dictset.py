@@ -1,34 +1,5 @@
-# Copyright (c) 2011, Roger Lew
-# All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions
-# are met:
-#   * Redistributions of source code must retain the above copyright
-#     notice, this list of conditions and the following disclaimer.
-#   * Redistributions in binary form must reproduce the above
-#     copyright notice, this list of conditions and the following
-#     disclaimer in the documentation and/or other materials provided
-#     with the distribution.
-#   * Neither the name of the organizations affiliated with the
-#     contributors or the names of its contributors themselves may be
-#     used to endorse or promote products derived from this software
-#     without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-# COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-# POSSIBILITY OF SUCH DAMAGE.
-#
-# This software is funded in part by NIH Grant NIH Grant P20 RR016454.
+# Copyright (c) 2011, Roger Lew [see LICENSE.txt]
+# This software is funded in part by NIH Grant P20 RR016454.
 
 """
 This unittest tests the dictset module.
@@ -239,6 +210,29 @@ class TestDictSet_remove(unittest.TestCase):
 
         self.assertEqual(str(cm.exception),'[]')
 
+    def test5(self):
+        L = DictSet(s2d('a0'))
+        R =         s2l('')
+        L.remove('a')
+
+        self.assertEqual(d2l(L),R)
+
+    def test6(self):
+        L = DictSet(s2d('a123 b456'))
+        R =         s2l('b456')
+        L.remove('a')
+
+        self.assertEqual(d2l(L),R)
+
+    def test7(self):
+        L = DictSet(s2d('a123 b456'))
+        L.remove('a')
+
+        with self.assertRaises(KeyError) as cm:
+            L.remove('a')
+
+        self.assertEqual(str(cm.exception),"'a'")
+
 class TestDictSet_add(unittest.TestCase):
     def test0(self):
         L = DictSet(s2d('a1 c5666788'))
@@ -271,13 +265,25 @@ class TestDictSet_add(unittest.TestCase):
                 "unhashable type: 'list'")
 
     def test5(self):
-        L = DictSet(s2d('a1 c5666788'))
-        
-        with self.assertRaises(TypeError) as cm:
-            L.add([],'8')
+        L = DictSet(s2d('b456'))
+        R =         s2l('b456')
+        L.add('b')  
 
-        self.assertEqual(str(cm.exception),
-                "unhashable type: 'list'")
+        self.assertEqual(d2l(L),R) # b should stay unaltered
+
+    def test6(self):
+        L = DictSet(s2d('b456'))
+        R =         s2l('b456 c0')
+        L.add('c')
+
+        self.assertEqual(d2l(L),R)
+
+    def test7(self):
+        L = DictSet(s2d('a123 b456 c0'))
+        R =         s2l('a123 b456 c0')
+        L.add('c') # shouldn't do anything
+
+        self.assertEqual(d2l(L),R)
 
 class TestDictSet_copy(unittest.TestCase):
     def test0(self):
@@ -333,6 +339,31 @@ class TestDictSet_discard(unittest.TestCase):
         L.discard([],'8') # dosen't raise TypeError
 
 
+    def test4(self):
+        L = DictSet(s2d('a1 c5666788'))
+        R =         s2l('a1 c56  7')
+        L.discard('c','8')
+        L.discard([],'8') # shouldn't complain
+
+    def test5(self):
+        L = DictSet(s2d('a0'))
+        R =         s2l('')
+        L.discard('a')
+
+        self.assertEqual(d2l(L),R)
+
+    def test6(self):
+        L = DictSet(s2d('a123 b456'))
+        R =         s2l('b456')
+        L.discard('a')
+
+        self.assertEqual(d2l(L),R)
+
+    def test7(self):
+        L = DictSet(s2d('a123 b456'))
+        L.discard('a')
+        L.discard('a') # Shouldn't complain
+        
 class TestDictSet__setitem__(unittest.TestCase):
     def test0(self):
         L = DictSet(s2d('a1 c5666788'))
