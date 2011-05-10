@@ -8,31 +8,29 @@ if sys.version_info[0]==2:
     pass
 elif sys.version_info[0]==3:
     from functools import reduce
-    
-from copy import copy, deepcopy
-from collections import _recursive_repr
+
+from copy import copy, deepcopy    
 
 # for unique_combinations method
-rep_generator=lambda A,times,each:(a for t in range(times)
-                                        for a in A
-                                           for e in range(each))
+def _rep_generator(A,times,each):
+    """like r's rep function, but returns a generator
 
-rep_generator.__doc__="""like r's rep function, but returns a generator
+      Examples:
+        >>> g=_rep_generator([1,2,3],times=1,each=3)
+        >>> [v for v in g]
+        [1, 1, 1, 2, 2, 2, 3, 3, 3]
 
-  Examples:
-    >>> g=rep_generator([1,2,3],times=1,each=3)
-    >>> [v for v in g]
-    [1, 1, 1, 2, 2, 2, 3, 3, 3]
+        >>> g=_rep_generator([1,2,3],times=3,each=1)
+        >>> [v for v in g]
+        [1, 2, 3, 1, 2, 3, 1, 2, 3]
+        
+        >>> g=_rep_generator([1,2,3],times=2,each=2)
+        >>> [v for v in g]
+        [1, 1, 2, 2, 3, 3, 1, 1, 2, 2, 3, 3]
+    """
+    return (a for t in range(times) for a in A for e in range(each))
 
-    >>> g=rep_generator([1,2,3],times=3,each=1)
-    >>> [v for v in g]
-    [1, 2, 3, 1, 2, 3, 1, 2, 3]
-    
-    >>> g=rep_generator([1,2,3],times=2,each=2)
-    >>> [v for v in g]
-    [1, 1, 2, 2, 3, 3, 1, 1, 2, 2, 3, 3]
-"""
-    
+
 class DictSet(dict):
     'A dictionary of sets that behaves like a set.'
     def __init__(*args, **kwds): # args[0] -> 'self'
@@ -167,7 +165,6 @@ class DictSet(dict):
                         if not k in list(args[0].keys()):
                             args[0][k]=set(val)
                         args[0][k]|=set(val)
-
 
                 # obj is list/tuple or list/tuple subclass
                 else:
@@ -316,7 +313,7 @@ class DictSet(dict):
         foo=deepcopy(self)
         for k in set(foo)|set(E):
             foo.setdefault(k,[]).update(E.get(k,[]))
-            if len(foo[k])==0 : del foo[k]
+            if not foo[k] : del foo[k] # delete if empty set
 
         return foo
 
@@ -349,7 +346,7 @@ class DictSet(dict):
         foo=deepcopy(self)
         for k in set(foo)|set(E):
             foo.setdefault(k,[]).intersection_update(E.get(k,[]))
-            if len(foo[k])==0 : del foo[k]
+            if not foo[k] : del foo[k] # delete if empty set
 
         return foo
 
@@ -380,7 +377,7 @@ class DictSet(dict):
         foo=deepcopy(self)
         for k in set(foo)|set(E):
             foo.setdefault(k,[]).difference_update(E.get(k,[]))
-            if len(foo[k])==0 : del foo[k]
+            if not foo[k] : del foo[k] # delete if empty set
 
         return foo
 
@@ -412,7 +409,7 @@ class DictSet(dict):
         foo=deepcopy(self)
         for k in set(foo)|set(E):
             foo.setdefault(k,[]).symmetric_difference_update(E.get(k,[]))
-            if len(foo[k])==0 : del foo[k]
+            if not foo[k] : del foo[k] # delete if empty set 
 
         return foo
 
@@ -505,7 +502,7 @@ class DictSet(dict):
         Raises KeyError if k is not hashable.
         """
 
-        if k not in self.keys():
+        if k not in list(self.keys()):
             self[k]=set()
             
         if v!=None:
@@ -567,7 +564,7 @@ class DictSet(dict):
         If v is not supplied removes DS[k]; it must be an item.
         if D[k] is not an item, raise a KeyError.
         """
-        if k not in self.keys():
+        if k not in list(self.keys()):
             raise KeyError(k)
         
         if v!=None:
@@ -643,8 +640,8 @@ class DictSet(dict):
                 times=N/(len(self[k])*each)
                 prev_n=len(self[k])
 
-                gen_dict[k]=rep_generator(sorted(self[k]),
-                                          int(times),int(each))
+                gen_dict[k]=_rep_generator(sorted(self[k]),
+                                           int(times),int(each))
 
             # Now we just have to yield the results
             for i in range(N):

@@ -1362,7 +1362,17 @@ class TestDictSet_unique_combinations(unittest.TestCase):
                                          ['7','2'],
                                          ['8','1'],
                                          ['8','2']])
+
+
+    def test4(self):
+        L = DictSet(s2d('a12 c568 d123 e78'))
+        g=L.unique_combinations()
         
+        self.assertEqual(''.join([''.join(v) for v in g]),
+        '151715181527152815371538161716181627162816371638'
+        '181718181827182818371838251725182527252825372538'
+        '261726182627262826372638281728182827282828372838')
+                
 def suite():
     return unittest.TestSuite((
             unittest.makeSuite(TestDictSet__init__),
@@ -1401,6 +1411,7 @@ def suite():
                               ))
 
 if __name__ == "__main__":
+
     # run tests
     runner = unittest.TextTestRunner()
     runner.run(suite())
