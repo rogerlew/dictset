@@ -2,7 +2,6 @@
 # This software is funded in part by NIH Grant P20 RR016454.
 
 # Python 2 to 3 workarounds
-
 import sys
 if sys.version_info[0]==2:
     pass
@@ -228,7 +227,8 @@ class DictSet(dict):
         # at this point we know they have the same keys
         # if all the non-empty set differences have 0 cardinality
         # the sets are equal
-        return sum([len(self.get(k,[])^E.get(k,[])) for k in self])==0
+        return sum([len(self.get(k,[])^E.get(k,[])) \
+                    for k in list(self.keys())])==0
 
     def __ne__(self,E): # overloaEs !=
         """
@@ -252,7 +252,8 @@ class DictSet(dict):
         # at this point we know they have the same keys
         # if all the set differences have 0 cardinality
         # the sets are equal
-        return sum((len(self.get(k,[])^E.get(k,[])) for k in self))!=0
+        return sum((len(self.get(k,[])^E.get(k,[])) \
+                    for k in list(self.keys())))!=0
         
     def issubset(self, E):
         """
@@ -311,7 +312,7 @@ class DictSet(dict):
             except : raise
 
         foo=deepcopy(self)
-        for k in set(foo)|set(E):
+        for k in set(list(foo.keys()))|set(list(E.keys())):
             foo.setdefault(k,[]).update(E.get(k,[]))
             if not foo[k] : del foo[k] # delete if empty set
 
@@ -344,7 +345,7 @@ class DictSet(dict):
         if E=={}: return {}
         
         foo=deepcopy(self)
-        for k in set(foo)|set(E):
+        for k in set(list(foo.keys()))|set(list(E.keys())):
             foo.setdefault(k,[]).intersection_update(E.get(k,[]))
             if not foo[k] : del foo[k] # delete if empty set
 
@@ -375,7 +376,7 @@ class DictSet(dict):
             except : raise
 
         foo=deepcopy(self)
-        for k in set(foo)|set(E):
+        for k in set(list(foo.keys()))|set(list(E.keys())):
             foo.setdefault(k,[]).difference_update(E.get(k,[]))
             if not foo[k] : del foo[k] # delete if empty set
 
@@ -407,7 +408,7 @@ class DictSet(dict):
             except : raise
 
         foo=deepcopy(self)
-        for k in set(foo)|set(E):
+        for k in set(list(foo.keys()))|set(list(E.keys())):
             foo.setdefault(k,[]).symmetric_difference_update(E.get(k,[]))
             if not foo[k] : del foo[k] # delete if empty set 
 
@@ -526,6 +527,16 @@ class DictSet(dict):
 
         return k in [key for (key,val) in list(self.items()) if len(val)>0]
 
+    def __iter__(self):
+        """
+        Iterate over keys with non-zero lengths.
+        
+        DS.__iter__(k) <==> for k in D 
+        """
+        for (key,val) in list(self.items()):
+            if len(val)>0:
+                yield key
+                    
     def get(self, k, v=None):
         """
         DS.get(k[,v]) -> DS[v] if k in DS, else set(v).

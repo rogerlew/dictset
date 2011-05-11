@@ -1317,6 +1317,28 @@ class TestDictSet__repr__(unittest.TestCase):
 
         self.assertEqual(L.__repr__(),R)
 
+class TestDictSet__iter__(unittest.TestCase):
+    def test0(self):
+        L = DictSet(s2d('a1 b576 c5666788 d43'))
+        g=L.__iter__()
+        
+        self.assertEqual(set([v for v in g])^set('abcd'),set())
+        self.assertEqual(set(list(L.keys()))^set('abcd'),set())
+
+    def test1(self):
+        L = DictSet(s2d('a1 b576 c5666788 d0'))
+        g=L.__iter__()
+        
+        self.assertEqual(set([v for v in g])^set('abc'),set())
+        self.assertEqual(set(list(L.keys()))^set('abcd'),set())
+
+    def test2(self):
+        L = DictSet(s2d(''))
+        g=L.__iter__()
+        
+        self.assertEqual(set([v for v in g]),set())
+        self.assertEqual(set(list(L.keys())),set())
+        
 class TestDictSet_unique_combinations(unittest.TestCase):
     def test0(self):
         L = DictSet(s2d('a1 c5666788 d0'))
@@ -1407,7 +1429,8 @@ def suite():
             unittest.makeSuite(TestDictSet__ge__),
             unittest.makeSuite(TestDictSet__contains__),
             unittest.makeSuite(TestDictSet_unique_combinations),
-            unittest.makeSuite(TestDictSet__repr__)
+            unittest.makeSuite(TestDictSet__repr__),
+            unittest.makeSuite(TestDictSet__iter__)
                               ))
 
 if __name__ == "__main__":
