@@ -152,6 +152,10 @@ class TestDictSet__init__(unittest.TestCase):
             d2l(DictSet(a='',b='123',c='45556')),
                    s2l('a 0  b  123  c  45  6'))
 
+    def test231(self):
+        self.assertEqual(d2l(DictSet(self=[1,2,3], other=[4,5,6])),
+                         [('other', [4, 5, 6]), ('self', [1, 2, 3])])
+
     def test24(self):
         """self can be a keyword)"""
         self.assertEqual(
@@ -204,12 +208,15 @@ class TestDictSet_remove(unittest.TestCase):
         L = DictSet(s2d('a1 c5666788'))
         R =         s2l('a1 c56  7')
         L.remove('c','8')
-        
-        with self.assertRaises(KeyError) as cm:
-            L.remove([],'8')
-
-        self.assertEqual(str(cm.exception),'[]')
-
+        if sys.version_info[0]==2:
+            with self.assertRaises(KeyError) as cm:
+                L.remove([],'8')
+            self.assertEqual(str(cm.exception),'[]')
+        elif sys.version_info[0]==3:
+            with self.assertRaises(TypeError) as cm:
+                L.remove([],'8')
+            self.assertEqual(str(cm.exception),"unhashable type: 'list'")
+                             
     def test5(self):
         L = DictSet(s2d('a0'))
         R =         s2l('')
@@ -233,6 +240,31 @@ class TestDictSet_remove(unittest.TestCase):
 
         self.assertEqual(str(cm.exception),"'a'")
 
+class TestDictSet_clear(unittest.TestCase):
+    def test0(self):
+        L = DictSet(s2d('a1 c5666788'))
+        R =         s2l('')
+        L.clear() # clear
+        
+        self.assertEqual(d2l(L),R)
+
+class TestDictSet_delitem(unittest.TestCase):
+    def test0(self):
+        L = DictSet(s2d('a123 b456'))
+        R =         s2l('b456')
+        del L['a']
+
+        self.assertEqual(d2l(L),R)
+
+    def test1(self):
+        L = DictSet(s2d('a123 b456'))
+        del L['a']
+
+        with self.assertRaises(KeyError) as cm:
+            del L['a']
+
+        self.assertEqual(str(cm.exception),"'a'")
+        
 class TestDictSet_add(unittest.TestCase):
     def test0(self):
         L = DictSet(s2d('a1 c5666788'))
@@ -1306,6 +1338,7 @@ class TestDictSet__repr__(unittest.TestCase):
             R="DictSet([('a', {'1'}), ('c', {'5', '7', '6', '8'})])"
 
         self.assertEqual(L.__repr__(),R)
+        self.assertEqual(d2l(eval(R)),d2l(L))
         
     def test1(self):
         L = DictSet()
@@ -1316,6 +1349,7 @@ class TestDictSet__repr__(unittest.TestCase):
             R="DictSet()"
 
         self.assertEqual(L.__repr__(),R)
+        self.assertEqual(d2l(eval(R)),d2l(L))
 
 class TestDictSet__iter__(unittest.TestCase):
     def test0(self):
@@ -1338,7 +1372,7 @@ class TestDictSet__iter__(unittest.TestCase):
         
         self.assertEqual(set([v for v in g]),set())
         self.assertEqual(set(list(L.keys())),set())
-        
+
 class TestDictSet_unique_combinations(unittest.TestCase):
     def test0(self):
         L = DictSet(s2d('a1 c5666788 d0'))
@@ -1394,13 +1428,15 @@ class TestDictSet_unique_combinations(unittest.TestCase):
         '151715181527152815371538161716181627162816371638'
         '181718181827182818371838251725182527252825372538'
         '261726182627262826372638281728182827282828372838')
-                
+        
 def suite():
     return unittest.TestSuite((
             unittest.makeSuite(TestDictSet__init__),
             unittest.makeSuite(TestDictSet_remove),
             unittest.makeSuite(TestDictSet_discard),
+            unittest.makeSuite(TestDictSet_clear),
             unittest.makeSuite(TestDictSet_add),
+            unittest.makeSuite(TestDictSet_delitem),
             unittest.makeSuite(TestDictSet_get),
             unittest.makeSuite(TestDictSet_setdefault),
             unittest.makeSuite(TestDictSet_copy),

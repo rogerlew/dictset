@@ -5,7 +5,7 @@
 from setuptools import setup
 
 setup(name='dictset',
-    version='0.3.0',
+    version='0.3.1',
     description='A specialized Python container datatype for managing collections of sets.',
     author='Roger Lew',
     author_email='rogerlew@gmail.com',

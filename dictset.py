@@ -4,9 +4,10 @@
 # Python 2 to 3 workarounds
 import sys
 if sys.version_info[0]==2:
-    pass
+    _xrange=xrange
 elif sys.version_info[0]==3:
     from functools import reduce
+    _xrange=range
 
 from copy import copy, deepcopy    
 
@@ -27,7 +28,7 @@ def _rep_generator(A,times,each):
         >>> [v for v in g]
         [1, 1, 2, 2, 3, 3, 1, 1, 2, 2, 3, 3]
     """
-    return (a for t in range(times) for a in A for e in range(each))
+    return (a for t in _xrange(times) for a in A for e in _xrange(each))
 
 
 class DictSet(dict):
@@ -103,7 +104,7 @@ class DictSet(dict):
 
                 # obj is dict or dict subclass
                 if hasattr(obj, 'keys'):
-                    for k,val in list(obj.items()):
+                    for k,val in obj.items():
                         try    : k.__hash__()
                         except : raise \
                     TypeError("unhashable type: '%s'"\
@@ -139,7 +140,7 @@ class DictSet(dict):
                                 %type(obj).__name__)
                     
         # check the keyword arguments
-        for (k,val) in list(kwds.items()):
+        for (k,val) in kwds.items():
             # unhashable keyword argumnents don't make it to the point 
             # so we just need to check that the values are iterable
             try    : val.__iter__()
@@ -160,8 +161,8 @@ class DictSet(dict):
 
                 # obj is dict or dict subclass
                 if hasattr(obj, 'keys'):
-                    for k,val in list(obj.items()):
-                        if not k in list(args[0].keys()):
+                    for k,val in obj.items():
+                        if not k in args[0].keys():
                             args[0][k]=set(val)
                         args[0][k]|=set(val)
 
@@ -169,13 +170,13 @@ class DictSet(dict):
                 else:
                     for item in obj:
                         (k,val)=item
-                        if not k in list(args[0].keys()):
+                        if not k in args[0].keys():
                             args[0][k]=set(val)
                         args[0][k]|=set(val)
 
         # Now add keyword arguments
-        for (k,val) in list(kwds.items()):
-            if not k in list(args[0].keys()):
+        for (k,val) in kwds.items():
+            if not k in args[0].keys():
                 args[0][k]=set(val)
             args[0][k]|=set(val)
 
@@ -220,15 +221,15 @@ class DictSet(dict):
         # check to see if self and E have the same keys
         # if they don't we know they aren't equal and
         # can return False
-        if len(set((k for (k,v) in list(self.items()) if len(v)!=0))  ^ \
-               set((k for (k,v) in list(   E.items()) if len(v)!=0))) > 0:
+        if len(set((k for (k,v) in self.items() if len(v)!=0))  ^ \
+               set((k for (k,v) in    E.items() if len(v)!=0))) > 0:
             return False
 
         # at this point we know they have the same keys
         # if all the non-empty set differences have 0 cardinality
         # the sets are equal
         return sum([len(self.get(k,[])^E.get(k,[])) \
-                    for k in list(self.keys())])==0
+                    for k in self.keys()])==0
 
     def __ne__(self,E): # overloaEs !=
         """
@@ -245,8 +246,8 @@ class DictSet(dict):
         # check to see if self and d have the same keys
         # if they don't we know they aren't equal and
         # can return False
-        if len(set((k for (k,v) in list(self.items()) if len(v)!=0))  ^ \
-               set((k for (k,v) in list(   E.items()) if len(v)!=0))) > 0:
+        if len(set((k for (k,v) in self.items() if len(v)!=0))  ^ \
+               set((k for (k,v) in    E.items() if len(v)!=0))) > 0:
             return True
 
         # at this point we know they have the same keys
@@ -312,7 +313,7 @@ class DictSet(dict):
             except : raise
 
         foo=deepcopy(self)
-        for k in set(list(foo.keys()))|set(list(E.keys())):
+        for k in set(foo.keys())|set(E.keys()):
             foo.setdefault(k,[]).update(E.get(k,[]))
             if not foo[k] : del foo[k] # delete if empty set
 
@@ -345,7 +346,7 @@ class DictSet(dict):
         if E=={}: return {}
         
         foo=deepcopy(self)
-        for k in set(list(foo.keys()))|set(list(E.keys())):
+        for k in set(foo.keys())|set(E.keys()):
             foo.setdefault(k,[]).intersection_update(E.get(k,[]))
             if not foo[k] : del foo[k] # delete if empty set
 
@@ -376,7 +377,7 @@ class DictSet(dict):
             except : raise
 
         foo=deepcopy(self)
-        for k in set(list(foo.keys()))|set(list(E.keys())):
+        for k in set(foo.keys())|set(E.keys()):
             foo.setdefault(k,[]).difference_update(E.get(k,[]))
             if not foo[k] : del foo[k] # delete if empty set
 
@@ -408,7 +409,7 @@ class DictSet(dict):
             except : raise
 
         foo=deepcopy(self)
-        for k in set(list(foo.keys()))|set(list(E.keys())):
+        for k in set(foo.keys())|set(E.keys()):
             foo.setdefault(k,[]).symmetric_difference_update(E.get(k,[]))
             if not foo[k] : del foo[k] # delete if empty set 
 
@@ -503,7 +504,7 @@ class DictSet(dict):
         Raises KeyError if k is not hashable.
         """
 
-        if k not in list(self.keys()):
+        if k not in self.keys():
             self[k]=set()
             
         if v!=None:
@@ -525,7 +526,7 @@ class DictSet(dict):
         DS.__contains__(k) <==> k in D 
         """
 
-        return k in [key for (key,val) in list(self.items()) if len(val)>0]
+        return k in [key for (key,val) in self.items() if len(val)>0]
 
     def __iter__(self):
         """
@@ -533,7 +534,7 @@ class DictSet(dict):
         
         DS.__iter__(k) <==> for k in D 
         """
-        for (key,val) in list(self.items()):
+        for (key,val) in self.items():
             if len(val)>0:
                 yield key
                     
@@ -575,7 +576,7 @@ class DictSet(dict):
         If v is not supplied removes DS[k]; it must be an item.
         if D[k] is not an item, raise a KeyError.
         """
-        if k not in list(self.keys()):
+        if k not in self.keys():
             raise KeyError(k)
         
         if v!=None:
@@ -655,7 +656,7 @@ class DictSet(dict):
                                            int(times),int(each))
 
             # Now we just have to yield the results
-            for i in range(N):
+            for i in _xrange(N):
                 yield [next(gen_dict[k]) for k in keys]
 
 if __name__ == "__main__":
