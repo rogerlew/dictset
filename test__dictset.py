@@ -340,6 +340,35 @@ class TestDictSet_copy(unittest.TestCase):
         R2 =         s2l('a1 c5678 d9')
 
         self.assertEqual(d2l(M),R2)
+
+class TestDictSet_fromkeys(unittest.TestCase):
+    def test0(self):
+        L  = DictSet(s2d('a1 c5678'))
+        R1 =         s2l('a1 c5678')
+        M=L.fromkeys(['a','b'])
+        
+        self.assertEqual(d2l(L),R1)
+        self.assertEqual(d2l(M),s2l('a0b0'))
+
+    def test1(self):
+        L  = DictSet(s2d('a1 c5678'))
+        R1 =         s2l('a1 c5678')
+        M=L.fromkeys(['a','b'],'567')
+        
+        self.assertEqual(d2l(L),R1)
+        self.assertEqual(d2l(M),s2l('a567b567'))
+
+    def test2(self):
+        L  = DictSet(s2d('a1 c5678'))
+        R1 =         s2l('a1 c5678')
+        
+        with self.assertRaises(TypeError) as cm:
+            M=L.fromkeys(['a','b'],5)
+
+        self.assertEqual(str(cm.exception),
+                 "'int' object is not iterable")
+        
+        self.assertEqual(d2l(L),R1)
         
 class TestDictSet_discard(unittest.TestCase):
     def test0(self):
@@ -1440,6 +1469,7 @@ def suite():
             unittest.makeSuite(TestDictSet_get),
             unittest.makeSuite(TestDictSet_setdefault),
             unittest.makeSuite(TestDictSet_copy),
+            unittest.makeSuite(TestDictSet_fromkeys),
             unittest.makeSuite(TestDictSet__setitem__),
             unittest.makeSuite(TestDictSet_update),
             unittest.makeSuite(TestDictSet__ior__),
