@@ -355,7 +355,7 @@ class DictSet(dict):
 
         # handle case where d=={}
         if E == {}:
-            return {}
+            return DictSet()
         
         foo = deepcopy(self)
         for k in set(foo.keys()) | set(E.keys()):

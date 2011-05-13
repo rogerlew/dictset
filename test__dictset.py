@@ -513,317 +513,377 @@ class TestDictSet_setdefault(unittest.TestCase):
         
 ## update functions
 class TestDictSet_update(unittest.TestCase):
-    """update is a union update"""
     
     def test0(self):
         L = DictSet(s2d('a1c5666788'))
-        M = DictSet(s2d(''))
+        M =         s2d('')
         R =         s2l('a1c56  78')
         L.update(M)
         
+        self.assertTrue(isinstance(L,DictSet))        
+        self.assertTrue(isinstance(M,dict))        
         self.assertEqual(d2l(L),R) # L is updated
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(M),s2l(''))
 
     def test1(self):
         L = DictSet(s2d(''))
-        M = DictSet(s2d('a1c5666788'))
+        M =         s2d('a1c5666788')
         R =         s2l('a1c56  78')
         L.update(M)
         
+        self.assertTrue(isinstance(L,DictSet))        
+        self.assertTrue(isinstance(M,dict))        
         self.assertEqual(d2l(L),R) # L is updated
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(M),s2l('a1c5666788'))
         
     def test2(self):
         L = DictSet(s2d('a1        c5666788'))
-        M = DictSet(s2d('a123 b324'))
+        M =         s2d('a123 b324')
         R =         s2l('a123 b324 c56  78')
         L.update(M)
         
+        self.assertTrue(isinstance(L,DictSet))        
+        self.assertTrue(isinstance(M,dict))        
         self.assertEqual(d2l(L),R) # L is updated
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(M),s2l('a123 b324'))
 
     def test3(self):
         L = DictSet(s2d('a123 b324'))
-        M = DictSet(s2d('a1        c5666788'))
+        M =         s2d('a1        c5666788')
         R =         s2l('a123 b324 c56  78')
         L.update(M)
         
+        self.assertTrue(isinstance(L,DictSet))        
+        self.assertTrue(isinstance(M,dict))        
         self.assertEqual(d2l(L),R) # L is updated
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(M),s2l('a1        c5666788'))
 
-## update functions
 class TestDictSet__ior__(unittest.TestCase):
-    """update is a union update"""
-    
     def test0(self):
         L = DictSet(s2d('a1c5666788'))
-        M = DictSet(s2d(''))
+        M =         s2d('')
         R =         s2l('a1c56  78')
         L|=M
-        
+      
+        self.assertTrue(isinstance(L,DictSet))        
+        self.assertTrue(isinstance(M,dict))        
         self.assertEqual(d2l(L),R) # L is updated
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(M),s2l(''))
 
     def test1(self):
         L = DictSet(s2d(''))
-        M = DictSet(s2d('a1c5666788'))
+        M =         s2d('a1c5666788')
         R =         s2l('a1c56  78')
         L|=M
         
+        self.assertTrue(isinstance(L,DictSet))        
+        self.assertTrue(isinstance(M,dict))        
         self.assertEqual(d2l(L),R) # L is updated
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(M),s2l('a1c5666788'))
         
     def test2(self):
         L = DictSet(s2d('a1        c5666788'))
-        M = DictSet(s2d('a123 b324'))
+        M =         s2d('a123 b324')
         R =         s2l('a123 b324 c56  78')
         L|=M
         
+        self.assertTrue(isinstance(L,DictSet))        
+        self.assertTrue(isinstance(M,dict))        
         self.assertEqual(d2l(L),R) # L is updated
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(M),s2l('a123 b324'))
 
     def test3(self):
         L = DictSet(s2d('a123 b324'))
-        M = DictSet(s2d('a1        c5666788'))
+        M =         s2d('a1        c5666788')
         R =         s2l('a123 b324 c56  78')
         L|=M
         
+        self.assertTrue(isinstance(L,DictSet))        
+        self.assertTrue(isinstance(M,dict))        
         self.assertEqual(d2l(L),R) # L is updated
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(M),s2l('a1        c5666788'))
         
 class TestDictSet_difference_update(unittest.TestCase):
     """update is a difference update"""
     
     def test0(self):
         L = DictSet(s2d('a1 c5666788'))
-        M = DictSet(s2d(''))
+        M =         s2d('')
         R =         s2l('a1 c56  78')
         L.difference_update(M)
         
+        self.assertTrue(isinstance(L,DictSet))        
+        self.assertTrue(isinstance(M,dict))        
         self.assertEqual(d2l(L),R) # L is updated
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(M),s2l(''))
 
     def test1(self):
         L = DictSet(s2d(''))
-        M = DictSet(s2d('a1 c5666788'))
+        M =         s2d('a1 c5666788')
         R =         s2l('')
         L.difference_update(M)
         
+        self.assertTrue(isinstance(L,DictSet))        
+        self.assertTrue(isinstance(M,dict))        
         self.assertEqual(d2l(L),R) # L is updated
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(M),s2l('a1 c5666788'))
         
     def test2(self):
         L = DictSet(s2d('a1        c56788'))
-        M = DictSet(s2d('a123 b324 c5 78'))
+        M =         s2d('a123 b324 c5 78')
         R =         s2l('          c 6')
         L.difference_update(M)
         
+        self.assertTrue(isinstance(L,DictSet))        
+        self.assertTrue(isinstance(M,dict))        
         self.assertEqual(d2l(L),R) # L is updated
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(M),s2l('a123 b324 c5 78'))
 
     def test3(self):
         L = DictSet(s2d('a123 b324 c5 78'))
-        M = DictSet(s2d('a1        c56788'))
+        M =         s2d('a1        c56788')
         R =         s2l('a 23 b324')
         L.difference_update(M)
         
+        self.assertTrue(isinstance(L,DictSet))        
+        self.assertTrue(isinstance(M,dict))        
         self.assertEqual(d2l(L),R) # L is updated
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(M),s2l('a1        c56788'))
 
 class TestDictSet__isub__(unittest.TestCase):
     """update is a difference update"""
     
     def test0(self):
         L = DictSet(s2d('a1 c5666788'))
-        M = DictSet(s2d(''))
+        M =         s2d('')
         R =         s2l('a1 c56  78')
         L-=M
         
+        self.assertTrue(isinstance(L,DictSet))        
+        self.assertTrue(isinstance(M,dict))        
         self.assertEqual(d2l(L),R) # L is updated
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(M),s2l(''))
 
     def test1(self):
         L = DictSet(s2d(''))
-        M = DictSet(s2d('a1 c5666788'))
+        M =         s2d('a1 c5666788')
         R =         s2l('')
         L-=M
         
+        self.assertTrue(isinstance(L,DictSet))        
+        self.assertTrue(isinstance(M,dict))        
         self.assertEqual(d2l(L),R) # L is updated
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(M),s2l('a1 c5666788'))
         
     def test2(self):
         L = DictSet(s2d('a1        c56788'))
-        M = DictSet(s2d('a123 b324 c5 78'))
+        M =         s2d('a123 b324 c5 78')
         R =         s2l('          c 6')
         L-=M
-        
+      
+        self.assertTrue(isinstance(L,DictSet))        
+        self.assertTrue(isinstance(M,dict))         
         self.assertEqual(d2l(L),R) # L is updated
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(M),s2l('a123 b324 c5 78'))
 
     def test3(self):
         L = DictSet(s2d('a123 b324 c5 78'))
-        M = DictSet(s2d('a1        c56788'))
+        M =         s2d('a1        c56788')
         R =         s2l('a 23 b324')
         L-=M
         
+        self.assertTrue(isinstance(L,DictSet))        
+        self.assertTrue(isinstance(M,dict))        
         self.assertEqual(d2l(L),R) # L is updated
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(M),s2l('a1        c56788'))
 
 class TestDictSet_symmetric_difference_update(unittest.TestCase):
     """tests symmetric_difference_update"""
     
     def test0(self):
         L = DictSet(s2d('a1 c5666788'))
-        M = DictSet(s2d(''))
+        M =         s2d('')
         R =         s2l('a1 c56  78')
         L.symmetric_difference_update(M)
         
+        self.assertTrue(isinstance(L,DictSet))        
+        self.assertTrue(isinstance(M,dict))        
         self.assertEqual(d2l(L),R) # L is updated
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(M),s2l(''))
 
     def test1(self):
         L = DictSet(s2d(''))
-        M = DictSet(s2d('a1 c5666788'))
+        M =         s2d('a1 c5666788')
         R =         s2l('a1 c56  78')
         L.symmetric_difference_update(M)
         
+        self.assertTrue(isinstance(L,DictSet))        
+        self.assertTrue(isinstance(M,dict))        
         self.assertEqual(d2l(L),R) # L is updated
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(M),s2l('a1 c5666788'))
         
     def test2(self):
         L = DictSet(s2d('a1        c56788'))
-        M = DictSet(s2d('a123 b324 c5 78'))
+        M =         s2d('a123 b324 c5 78')
         R =         s2l('a 23 b324 c 6')
         L.symmetric_difference_update(M)
         
+        self.assertTrue(isinstance(L,DictSet))        
+        self.assertTrue(isinstance(M,dict))        
         self.assertEqual(d2l(L),R) # L is updated
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(M),s2l('a123 b324 c5 78'))
 
     def test3(self):
         L = DictSet(s2d('a123 b324 c5 78'))
-        M = DictSet(s2d('a1        c56788'))
+        M =         s2d('a1        c56788')
         R =         s2l('a 23 b324 c 6')
         L.symmetric_difference_update(M)
         
+        self.assertTrue(isinstance(L,DictSet))        
+        self.assertTrue(isinstance(M,dict))        
         self.assertEqual(d2l(L),R) # L is updated
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(M),s2l('a1        c56788'))
 
 class TestDictSet__ixor__(unittest.TestCase):
     """test symmetric_difference_update overloading"""
     
     def test0(self):
         L = DictSet(s2d('a1 c5666788'))
-        M = DictSet(s2d(''))
+        M =         s2d('')
         R =         s2l('a1 c56  78')
         L^=M
         
+        self.assertTrue(isinstance(L,DictSet))        
+        self.assertTrue(isinstance(M,dict))        
         self.assertEqual(d2l(L),R) # L is updated
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(M),s2l(''))
 
     def test1(self):
         L = DictSet(s2d(''))
-        M = DictSet(s2d('a1 c5666788'))
+        M =         s2d('a1 c5666788')
         R =         s2l('a1 c56  78')
         L^=M
         
+        self.assertTrue(isinstance(L,DictSet))        
+        self.assertTrue(isinstance(M,dict))        
         self.assertEqual(d2l(L),R) # L is updated
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(M),s2l('a1 c5666788'))
         
     def test2(self):
         L = DictSet(s2d('a1        c56788'))
-        M = DictSet(s2d('a123 b324 c5 78'))
+        M =         s2d('a123 b324 c5 78')
         R =         s2l('a 23 b324 c 6')
         L^=M
         
+        self.assertTrue(isinstance(L,DictSet))        
+        self.assertTrue(isinstance(M,dict))        
         self.assertEqual(d2l(L),R) # L is updated
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(M),s2l('a123 b324 c5 78'))
 
     def test3(self):
         L = DictSet(s2d('a123 b324 c5 78'))
-        M = DictSet(s2d('a1        c56788'))
+        M =         s2d('a1        c56788')
         R =         s2l('a 23 b324 c 6')
         L^=M
         
+        self.assertTrue(isinstance(L,DictSet))        
+        self.assertTrue(isinstance(M,dict))        
         self.assertEqual(d2l(L),R) # L is updated
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(M),s2l('a1        c56788'))
 
 class TestDictSet_intersection_update(unittest.TestCase):
     """tests intersection_update"""
     
     def test0(self):
         L = DictSet(s2d('a1 c5666788'))
-        M = DictSet(s2d(''))
+        M =         s2d('')
         R =         s2l('')
         L.intersection_update(M)
         
+        self.assertTrue(isinstance(L,DictSet))        
+        self.assertTrue(isinstance(M,dict))        
         self.assertEqual(d2l(L),R) # L is updated
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(M),s2l(''))
 
     def test1(self):
         L = DictSet(s2d(''))
-        M = DictSet(s2d('a1 c5666788'))
+        M =         s2d('a1 c5666788')
         R =         s2l('')
         L.intersection_update(M)
         
+        self.assertTrue(isinstance(L,DictSet))        
+        self.assertTrue(isinstance(M,dict))        
         self.assertEqual(d2l(L),R) # L is updated
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(M),s2l('a1 c5666788'))
         
     def test2(self):
         L = DictSet(s2d('a1        c567889'))
-        M = DictSet(s2d('a123 b324 c5 78'))
+        M =         s2d('a123 b324 c5 78')
         R =         s2l('a1        c5 78 ')
         L.intersection_update(M)
         
+        self.assertTrue(isinstance(L,DictSet))        
+        self.assertTrue(isinstance(M,dict))        
         self.assertEqual(d2l(L),R) # L is updated
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(M),s2l('a123 b324 c5 78'))
 
     def test3(self):
         L = DictSet(s2d('a123 b324 c5 78'))
-        M = DictSet(s2d('a1        c567889'))
+        M =         s2d('a1        c567889')
         R =         s2l('a1        c5 78 ')
         L.intersection_update(M)
         
+        self.assertTrue(isinstance(L,DictSet))        
+        self.assertTrue(isinstance(M,dict))        
         self.assertEqual(d2l(L),R) # L is updated
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(M),s2l('a1        c567889'))
 
 class TestDictSet__iand__(unittest.TestCase):
-    """test intersection_update overloading"""
+    """test _update overloading"""
     
     def test0(self):
         L = DictSet(s2d('a1 c5666788'))
-        M = DictSet(s2d(''))
+        M =         s2d('')
         R =         s2l('')
         L&=M
         
+        self.assertTrue(isinstance(L,DictSet))        
+        self.assertTrue(isinstance(M,dict))        
         self.assertEqual(d2l(L),R) # L is updated
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(M),s2l(''))
 
     def test1(self):
         L = DictSet(s2d(''))
-        M = DictSet(s2d('a1 c5666788'))
+        M =         s2d('a1 c5666788')
         R =         s2l('')
         L&=M
         
+        self.assertTrue(isinstance(L,DictSet))        
+        self.assertTrue(isinstance(M,dict))        
         self.assertEqual(d2l(L),R) # L is updated
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(M),s2l('a1 c5666788'))
         
     def test2(self):
         L = DictSet(s2d('a1        c56788'))
-        M = DictSet(s2d('a123 b324 c5 78'))
+        M =         s2d('a123 b324 c5 78')
         R =         s2l('a1        c5 78')
         L&=M
         
+        self.assertTrue(isinstance(L,DictSet))        
+        self.assertTrue(isinstance(M,dict))        
         self.assertEqual(d2l(L),R) # L is updated
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(M),s2l('a123 b324 c5 78'))
 
     def test3(self):
         L = DictSet(s2d('a123 b324 c5 78'))
-        M = DictSet(s2d('a1        c56788'))
+        M =         s2d('a1        c56788')
         R =         s2l('a1        c5 78')
         L&=M
-        
+                         
+        self.assertTrue(isinstance(L,DictSet))        
+        self.assertTrue(isinstance(M,dict))        
         self.assertEqual(d2l(L),R) # L is updated
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(M),s2l('a1        c56788'))
         
 # set operations
 class TestDictSet_union(unittest.TestCase):
@@ -831,304 +891,336 @@ class TestDictSet_union(unittest.TestCase):
     
     def test0(self):
         L = DictSet(s2d('a1c5666788'))
-        M = DictSet(s2d(''))
+        M =         s2d('')
         R =         s2l('a1c56  78')
-        
+
+        self.assertTrue(isinstance(L.union(M),DictSet))
         self.assertEqual(d2l(L.union(M)),R) 
-        self.assertEqual(d2l(L),L) # L is unchanged
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(L),s2l('a1c5678'))
+        self.assertEqual(d2l(M),s2l(''))
 
     def test1(self):
         L = DictSet(s2d(''))
-        M = DictSet(s2d('a1c5666788'))
+        M =         s2d('a1c5666788')
         R =         s2l('a1c56  78')
 
+        self.assertTrue(isinstance(L.union(M),DictSet))
         self.assertEqual(d2l(L.union(M)),R)
-        self.assertEqual(d2l(L),L) # L is unchanged
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(L),s2l(''))
+        self.assertEqual(d2l(M),s2l('a1c5666788'))
         
     def test2(self):
         L = DictSet(s2d('a1        c5666788'))
-        M = DictSet(s2d('a123 b324'))
+        M =         s2d('a123 b324')
         R =         s2l('a123 b324 c56  78')
 
+        self.assertTrue(isinstance(L.union(M),DictSet))
         self.assertEqual(d2l(L.union(M)),R)
-        self.assertEqual(d2l(L),L) # L is unchanged
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(L),s2l('a1        c5678'))
+        self.assertEqual(d2l(M),s2l('a123 b324'))
 
     def test3(self):
         L = DictSet(s2d('a123 b324'))
-        M = DictSet(s2d('a1        c5666788'))
+        M =         s2d('a1        c5666788')
         R =         s2l('a123 b324 c56  78')
 
+        self.assertTrue(isinstance(L.union(M),DictSet))
         self.assertEqual(d2l(L.union(M)),R)
-        self.assertEqual(d2l(L),L) # L is unchanged
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(L),s2l('a123 b234'))
+        self.assertEqual(d2l(M),s2l('a1        c5666788'))
 
 class TestDictSet__or__(unittest.TestCase):
     """update is a union update"""
     
     def test0(self):
         L = DictSet(s2d('a1c5666788'))
-        M = DictSet(s2d(''))
+        M =         s2d('')
         R =         s2l('a1c56  78')
-        
+
+        self.assertTrue(isinstance(L|M,DictSet))
         self.assertEqual(d2l(L|M),R) 
-        self.assertEqual(d2l(L),L) # L is unchanged
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(L),s2l('a1c5678'))
+        self.assertEqual(d2l(M),s2l('')) 
 
     def test1(self):
         L = DictSet(s2d(''))
-        M = DictSet(s2d('a1c5666788'))
+        M =         s2d('a1c5666788')
         R =         s2l('a1c56  78')
 
+        self.assertTrue(isinstance(L|M,DictSet))
         self.assertEqual(d2l(L|M),R)
-        self.assertEqual(d2l(L),L) # L is unchanged
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(L),s2l(''))
+        self.assertEqual(d2l(M),s2l('a1c5666788'))
         
     def test2(self):
         L = DictSet(s2d('a1        c5666788'))
-        M = DictSet(s2d('a123 b324'))
+        M =         s2d('a123 b324')
         R =         s2l('a123 b324 c56  78')
 
+        self.assertTrue(isinstance(L|M,DictSet))
         self.assertEqual(d2l(L|M),R)
-        self.assertEqual(d2l(L),L) # L is unchanged
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(L),s2l('a1c5678'))
+        self.assertEqual(d2l(M),s2l('a123 b324'))
 
     def test3(self):
         L = DictSet(s2d('a123 b324'))
-        M = DictSet(s2d('a1        c5666788'))
+        M =         s2d('a1        c5666788')
         R =         s2l('a123 b324 c56  78')
 
+        self.assertTrue(isinstance(L|M,DictSet))
         self.assertEqual(d2l(L|M),R)
-        self.assertEqual(d2l(L),L) # L is unchanged
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(L),s2l('a123 b234'))
+        self.assertEqual(d2l(M),s2l('a1        c5666788'))
 
 class TestDictSet_difference(unittest.TestCase):
     """update is a union update"""
     
     def test0(self):
         L = DictSet(s2d('a1 c5666788'))
-        M = DictSet(s2d(''))
+        M =         s2d('')
         R =         s2l('a1 c56  78')
 
+        self.assertTrue(isinstance(L.difference(M),DictSet))
         self.assertEqual(d2l(L.difference(M)),R)
-        self.assertEqual(d2l(L),L) # L is unchanged
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(L),s2l('a1 c5678'))
+        self.assertEqual(d2l(M),s2l(''))
 
     def test1(self):
         L = DictSet(s2d(''))
-        M = DictSet(s2d('a1 c5666788'))
+        M =         s2d('a1 c5666788')
         R =         s2l('')
 
+        self.assertTrue(isinstance(L.difference(M),DictSet))
         self.assertEqual(d2l(L.difference(M)),R)
-        self.assertEqual(d2l(L),L) # L is unchanged
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(L),s2l(''))
+        self.assertEqual(d2l(M),s2l('a1 c5666788'))
         
     def test2(self):
         L = DictSet(s2d('a1        c56788'))
-        M = DictSet(s2d('a123 b324 c5 78'))
+        M =         s2d('a123 b324 c5 78')
         R =         s2l('          c 6')
 
+        self.assertTrue(isinstance(L.difference(M),DictSet))
         self.assertEqual(d2l(L.difference(M)),R)
-        self.assertEqual(d2l(L),L) # L is unchanged
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(L),s2l('a1 c5678'))
+        self.assertEqual(d2l(M),s2l('a123 b324 c5 78'))
 
     def test3(self):
         L = DictSet(s2d('a123 b324 c5 78'))
-        M = DictSet(s2d('a1        c56788'))
+        M =         s2d('a1        c56788')
         R =         s2l('a 23 b324')
 
+        self.assertTrue(isinstance(L.difference(M),DictSet))
         self.assertEqual(d2l(L.difference(M)),R)
-        self.assertEqual(d2l(L),L) # L is unchanged
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(L),s2l('a123 b234 c5 78'))
+        self.assertEqual(d2l(M),s2l('a1        c56788'))
         
 class TestDictSet__sub__(unittest.TestCase):
-    """update is a union update"""
     
     def test0(self):
         L = DictSet(s2d('a1 c5666788 e0'))
-        M = DictSet(s2d(''))
+        M =         s2d('')
         R =         s2l('a1 c56  78')
 
+        self.assertTrue(isinstance(L-M,DictSet))
         self.assertEqual(d2l(L-M),R)
-        self.assertEqual(d2l(L),L) # L is unchanged
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(L),s2l('a1 c5678 e0'))
+        self.assertEqual(d2l(M),s2l(''))
 
     def test1(self):
         L = DictSet(s2d(''))
-        M = DictSet(s2d('a1 c5666788 e0'))
+        M =         s2d('a1 c5666788 e0')
         R =         s2l('')
 
+        self.assertTrue(isinstance(L-M,DictSet))
         self.assertEqual(d2l(L-M),R)
-        self.assertEqual(d2l(L),L) # L is unchanged
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(L),s2l(''))
+        self.assertEqual(d2l(M),s2l('a1 c5666788 e0'))
         
     def test2(self):
         L = DictSet(s2d('a1        c56788 e0'))
-        M = DictSet(s2d('a123 b324 c5 78 d0'))
+        M =         s2d('a123 b324 c5 78 d0')
         R =         s2l('          c 6')
 
+        self.assertTrue(isinstance(L-M,DictSet))
         self.assertEqual(d2l(L-M),R)
-        self.assertEqual(d2l(L),L) # L is unchanged
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(L),s2l('a1 c5678 e0'))
+        self.assertEqual(d2l(M),s2l('a123 b324 c5 78 d0'))
 
     def test3(self):
         L = DictSet(s2d('a123 b324 c5 78 d0'))
-        M = DictSet(s2d('a1        c56788 e0'))
+        M =         s2d('a1        c56788 e0')
         R =         s2l('a 23 b324')
 
+        self.assertTrue(isinstance(L-M,DictSet))
         self.assertEqual(d2l(L-M),R)
-        self.assertEqual(d2l(L),L) # L is unchanged
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(L),s2l('a123 b234 c5 78 d0'))
+        self.assertEqual(d2l(M),s2l('a1        c56788 e0'))
 
 class TestDictSet_symmetric_difference(unittest.TestCase):
     def test0(self):
         L = DictSet(s2d('a1 c5666788 e0'))
-        M = DictSet(s2d(''))
+        M =         s2d('')
         R =         s2l('a1 c56  78')
 
+        self.assertTrue(isinstance(L.symmetric_difference(M),DictSet))
         self.assertEqual(d2l(L.symmetric_difference(M)),R)
-        self.assertEqual(d2l(L),L) # L is unchanged
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(L),s2l('a1 c5678 e0'))
+        self.assertEqual(d2l(M),s2l(''))
 
     def test1(self):
         L = DictSet(s2d(''))
-        M = DictSet(s2d('a1 c5666788 e0'))
+        M =         s2d('a1 c5666788 e0')
         R =         s2l('a1 c56  78')
 
+        self.assertTrue(isinstance(L.symmetric_difference(M),DictSet))
         self.assertEqual(d2l(L.symmetric_difference(M)),R)
-        self.assertEqual(d2l(L),L) # L is unchanged
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(L),s2l(''))
+        self.assertEqual(d2l(M),s2l('a1 c5666788 e0'))
         
     def test2(self):
         L = DictSet(s2d('a1        c56788 e0'))
-        M = DictSet(s2d('a123 b324 c5 78 d0'))
+        M =         s2d('a123 b324 c5 78 d0')
         R =         s2l('a 23 b324 c 6')
 
+        self.assertTrue(isinstance(L.symmetric_difference(M),DictSet))
         self.assertEqual(d2l(L.symmetric_difference(M)),R)
-        self.assertEqual(d2l(L),L) # L is unchanged
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(L),s2l('a1 c5678 e0'))
+        self.assertEqual(d2l(M),s2l('a123 b324 c5 78 d0'))
 
     def test3(self):
         L = DictSet(s2d('a123 b324 c5 78 d0'))
-        M = DictSet(s2d('a1        c56788 e0'))
+        M =         s2d('a1        c56788 e0')
         R =         s2l('a 23 b324 c 6')
 
+        self.assertTrue(isinstance(L.symmetric_difference(M),DictSet))
         self.assertEqual(d2l(L.symmetric_difference(M)),R)
-        self.assertEqual(d2l(L),L) # L is unchanged
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(L),s2l('a123 b234 c5 78 d0'))
+        self.assertEqual(d2l(M),s2l('a1        c56788 e0'))
 
 class TestDictSet__xor__(unittest.TestCase):
     def test0(self):
         L = DictSet(s2d('a1 c5666788 e0'))
-        M = DictSet(s2d(''))
+        M =         s2d('')
         R =         s2l('a1 c56  78')
 
+        self.assertTrue(isinstance(L^M,DictSet))
         self.assertEqual(d2l(L^M),R)
-        self.assertEqual(d2l(L),L) # L is unchanged
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(L),s2l('a1 c5678 e0'))
+        self.assertEqual(d2l(M),s2l(''))
 
     def test1(self):
         L = DictSet(s2d(''))
-        M = DictSet(s2d('a1 c5666788 e0'))
+        M =         s2d('a1 c5666788 e0')
         R =         s2l('a1 c56  78')
 
+        self.assertTrue(isinstance(L^M,DictSet))
         self.assertEqual(d2l(L^M),R)
-        self.assertEqual(d2l(L),L) # L is unchanged
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(L),s2l(''))
+        self.assertEqual(d2l(M),s2l('a1 c5666788 e0'))
         
     def test2(self):
         L = DictSet(s2d('a1        c56788 e0'))
-        M = DictSet(s2d('a123 b324 c5 78 d0'))
+        M =         s2d('a123 b324 c5 78 d0')
         R =         s2l('a 23 b324 c 6')
 
+        self.assertTrue(isinstance(L^M,DictSet))
         self.assertEqual(d2l(L^M),R)
-        self.assertEqual(d2l(L),L) # L is unchanged
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(L),s2l('a1 c5678 e0'))
+        self.assertEqual(d2l(M),s2l('a123 b324 c5 78 d0'))
 
     def test3(self):
         L = DictSet(s2d('a123 b324 c5 78 d0'))
-        M = DictSet(s2d('a1        c56788 e0'))
+        M =         s2d('a1        c56788 e0')
         R =         s2l('a 23 b324 c 6')
 
+        self.assertTrue(isinstance(L^M,DictSet))
         self.assertEqual(d2l(L^M),R)
-        self.assertEqual(d2l(L),L) # L is unchanged
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(L),s2l('a123 b234 c5 78 d0'))
+        self.assertEqual(d2l(M),s2l('a1        c56788 e0'))
 
 class TestDictSet_intersection(unittest.TestCase):
     def test0(self):
         L = DictSet(s2d('a1 c5666788'))
-        M = DictSet(s2d(''))
+        M =         s2d('')
         R =         s2l('')
 
+        self.assertTrue(isinstance(L.intersection(M),DictSet))
         self.assertEqual(d2l(L.intersection(M)),R)
-        self.assertEqual(d2l(L),L) # L is unchanged
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(L),s2l('a1 c5678'))
+        self.assertEqual(d2l(M),s2l(''))
 
     def test1(self):
         L = DictSet(s2d(''))
-        M = DictSet(s2d('a1 c5666788'))
+        M =         s2d('a1 c5666788')
         R =         s2l('')
 
+        self.assertTrue(isinstance(L.intersection(M),DictSet))
         self.assertEqual(d2l(L.intersection(M)),R)
-        self.assertEqual(d2l(L),L) # L is unchanged
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(L),s2l(''))
+        self.assertEqual(d2l(M),s2l('a1 c5666788'))
         
     def test2(self):
         L = DictSet(s2d('a1        c567889'))
-        M = DictSet(s2d('a123 b324 c5 78'))
+        M =         s2d('a123 b324 c5 78')
         R =         s2l('a1        c5 78 ')
 
+        self.assertTrue(isinstance(L.intersection(M),DictSet))
         self.assertEqual(d2l(L.intersection(M)),R)
-        self.assertEqual(d2l(L),L) # L is unchanged
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(L),s2l('a1        c56789'))
+        self.assertEqual(d2l(M),s2l('a123 b324 c5 78'))
 
     def test3(self):
         L = DictSet(s2d('a123 b324 c5 78'))
-        M = DictSet(s2d('a1        c567889'))
+        M =         s2d('a1        c567889')
         R =         s2l('a1        c5 78 ')
 
+        self.assertTrue(isinstance(L.intersection(M),DictSet))
         self.assertEqual(d2l(L.intersection(M)),R)
-        self.assertEqual(d2l(L),L) # L is unchanged
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(L),s2l('a123 b234 c5 78'))
+        self.assertEqual(d2l(M),s2l('a1        c567889'))
 
+        
 class TestDictSet__and__(unittest.TestCase):
     def test0(self):
         L = DictSet(s2d('a1 c5666788'))
-        M = DictSet(s2d('e0'))
+        M =         s2d('e0')
         R =         s2l('')
 
+        self.assertTrue(isinstance(L&M,DictSet))
         self.assertEqual(d2l(L&M),R)
-        self.assertEqual(d2l(L),L) # L is unchanged
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(L),s2l('a1 c5678'))
+        self.assertEqual(d2l(M),s2l('e0'))
 
     def test1(self):
         L = DictSet(s2d(''))
-        M = DictSet(s2d('a1 c5666788 d0'))
+        M =         s2d('a1 c5666788 d0')
         R =         s2l('')
 
+        self.assertTrue(isinstance(L&M,DictSet))
         self.assertEqual(d2l(L&M),R)
-        self.assertEqual(d2l(L),L) # L is unchanged
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(L),s2l(''))
+        self.assertEqual(d2l(M),s2l('a1 c5666788 d0'))
         
     def test2(self):
         L = DictSet(s2d('a1        c567889 d0'))
-        M = DictSet(s2d('a123 b324 c5 78'))
-        R =         s2l('a1        c5 78 ')
+        M =         s2d('a123 b324 c5 78')
+        R =         s2l('a1        c5 78')
 
+        self.assertTrue(isinstance(L&M,DictSet))
         self.assertEqual(d2l(L&M),R)
-        self.assertEqual(d2l(L),L) # L is unchanged
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(L),s2l('a1 c56789 d0'))
+        self.assertEqual(d2l(M),s2l('a123 b324 c5 78'))
 
     def test3(self):
         L = DictSet(s2d('a123 b324 c5 78 e0'))
-        M = DictSet(s2d('a1        c567889 d0'))
+        M =         s2d('a1        c567889 d0')
         R =         s2l('a1        c5 78 ')
 
+        self.assertTrue(isinstance(L&M,DictSet))
         self.assertEqual(d2l(L&M),R)
-        self.assertEqual(d2l(L),L) # L is unchanged
-        self.assertEqual(d2l(M),M) # M is unchanged
+        self.assertEqual(d2l(L),s2l('a123 b234 c5 78 e0'))
+        self.assertEqual(d2l(M),s2l('a1        c567889 d0'))
         
 # truth comparisons
 
