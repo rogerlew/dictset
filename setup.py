@@ -5,7 +5,7 @@
 from setuptools import setup
 
 setup(name='dictset',
-    version='0.3.1',
+    version='0.3.1.1',
     description='A specialized Python container datatype for managing collections of sets.',
     author='Roger Lew',
     author_email='rogerlew@gmail.com',
@@ -25,7 +25,7 @@ setup(name='dictset',
                  "Topic :: Scientific/Engineering :: Mathematics",
                  "Topic :: Software Development :: Libraries :: Python Modules"],
     url='http://code.google.com/p/dictset/',
-    py_modules=['dictset',],
+    py_modules=['dictset'],
 )
 
 """setup.py sdist upload --identity="Roger Lew" --sign"""

@@ -61,9 +61,9 @@ class DictSet(dict):
         elif len(args) == 2:
             args[0].update(args[1], **kwds)
 
-        elif len(args) > 2 : raise \
-            TypeError('DictSet expected at most 1 arguments, got %d'\
-                      %(len(args) - 1))
+        elif len(args) > 2:
+            raise TypeError(
+            'DictSet expected at most 1 arguments, got %d' % (len(args) - 1))
         
     def update(*args, **kwds): # args[0] -> 'self'
         """
@@ -86,9 +86,9 @@ class DictSet(dict):
         DS|=E  <==> DS.update(E)
         """
         # check the length of args
-        if len(args) > 2 : raise \
-            TypeError('DictSet expected at most 1 arguments, got %d'
-                      %(len(args) - 1))
+        if len(args) > 2:
+            raise TypeError(
+            'DictSet expected at most 1 arguments, got %d' % (len(args) - 1))
 
         # Make sure args can be mapped to a DictSet before
         # we start adding them.
@@ -106,15 +106,11 @@ class DictSet(dict):
                 # obj is dict or dict subclass
                 if hasattr(obj, 'keys'):
                     for k, val in obj.items():
-                        try:
-                            k.__hash__()
-                        except:
+                        if not hasattr(k,'__hash__'):
                             raise TypeError(
                                 "unhashable type: '%s'" % type(k).__name__)
-
-                        try:
-                            val.__iter__()
-                        except:
+                        
+                        if not hasattr(val,'__iter__'):
                             if not isinstance(val, str):
                                 raise TypeError(
                         "'%s' object is not iterable" % type(val).__name__)
@@ -128,18 +124,14 @@ class DictSet(dict):
                             raise TypeError(
                                   'could not unpack arg to key/value pairs')
 
-                        try:
-                            k.__hash__()
-                        except:
+                        if not hasattr(k,'__hash__'):
                             raise TypeError(
-                                 "unhashable type: '%s'" % type(k).__name__)
-
-                        try:
-                            val.__iter__()
-                        except:
+                                "unhashable type: '%s'" % type(k).__name__)
+                        
+                        if not hasattr(val,'__iter__'):
                             if not isinstance(val, str):
                                 raise TypeError(
-                         "'%s' object is not iterable" % type(val).__name__)
+                        "'%s' object is not iterable" % type(val).__name__)
 
             # obj is not iterable, e.g. an int, float, etc.
             else:
@@ -150,9 +142,7 @@ class DictSet(dict):
         for (k, val) in kwds.items():
             # unhashable keyword argumnents don't make it to the point 
             # so we just need to check that the values are iterable
-            try:
-                val.__iter__()
-            except:
+            if not hasattr(val,'__iter__'):
                 if not isinstance(val, str):
                     raise TypeError(
                          "'%s' object is not iterable" % type(val).__name__)
@@ -163,23 +153,20 @@ class DictSet(dict):
         if len(args) == 2:
             obj = args[1]
 
-            # Check using duck typing
-            if hasattr(obj, '__getitem__'):
+            # obj is dict or dict subclass
+            if hasattr(obj, 'keys'):
+                for k, val in obj.items():
+                    if not k in args[0].keys():
+                        args[0][k] = set(val)
+                    args[0][k] |= set(val)
 
-                # obj is dict or dict subclass
-                if hasattr(obj, 'keys'):
-                    for k, val in obj.items():
-                        if not k in args[0].keys():
-                            args[0][k] = set(val)
-                        args[0][k] |= set(val)
-
-                # obj is list/tuple or list/tuple subclass
-                else:
-                    for item in obj:
-                        (k, val) = item
-                        if not k in args[0].keys():
-                            args[0][k] = set(val)
-                        args[0][k] |= set(val)
+            # obj is list/tuple or list/tuple subclass
+            else:
+                for item in obj:
+                    (k, val) = item
+                    if not k in args[0].keys():
+                        args[0][k] = set(val)
+                    args[0][k] |= set(val)
 
         # Now add keyword arguments
         for (k, val) in kwds.items():
@@ -283,7 +270,7 @@ class DictSet(dict):
             return True
 
         b = True
-        for k in set(self)|set(E):
+        for k in set(self) | set(E):
             if not self.get(k, []) <= E.get(k, []):
                 b = False
             
@@ -310,7 +297,7 @@ class DictSet(dict):
             return True
 
         b = True
-        for k in set(self)|set(E):
+        for k in set(self) | set(E):
             if not self.get(k, []) >= E.get(k, []):
                 b = False
             
@@ -722,11 +709,3 @@ class DictSet(dict):
                 d[key] = set(values)
                 
         return d
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod()
-##    doctest.testmod(verbose=True,report=True)
-
-
-
