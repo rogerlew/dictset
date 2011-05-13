@@ -26,6 +26,6 @@ setup(name='dictset',
                  "Topic :: Software Development :: Libraries :: Python Modules"],
     url='http://code.google.com/p/dictset/',
     py_modules=['dictset'],
-)
+      )
 
 """setup.py sdist upload --identity="Roger Lew" --sign"""
